@@ -273,6 +273,14 @@ export default function SkillsSection({
           ))}
         </div>
       )}
+      <button
+          type="button"
+          onClick={onAddCategory}
+          disabled={atCategoryLimit}
+          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <span className="text-base leading-none">+</span> Add Category
+        </button>
     </div>
   );
 }

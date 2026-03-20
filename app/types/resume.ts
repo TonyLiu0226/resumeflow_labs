@@ -46,3 +46,18 @@ export interface ResumeFormData {
   projects: Project[];
   skillCategories: SkillCategory[];
 }
+
+// ─── API payload (JSON-safe: Set<string> → string[]) ──────────────────────────
+
+export interface SkillCategoryPayload {
+  name: string;
+  skills: string[];
+}
+
+export interface ResumePayload {
+  contact: ContactInfo;
+  education: Education[];
+  experience: Experience[];
+  projects: Project[];
+  skillCategories: SkillCategoryPayload[];
+}

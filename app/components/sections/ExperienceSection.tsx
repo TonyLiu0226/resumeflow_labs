@@ -123,11 +123,6 @@ function ExperienceItem({ experience, index, onUpdate, onRemove }: ItemProps) {
     onUpdate(experience.id, { [field]: value });
   };
 
-  const title = experience.jobTitle || `Experience ${index + 1}`;
-  const subtitle = [experience.companyName, experience.location]
-    .filter(Boolean)
-    .join(" · ");
-
   return (
     <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
       {/* Header */}
@@ -135,13 +130,7 @@ function ExperienceItem({ experience, index, onUpdate, onRemove }: ItemProps) {
         className="flex items-center justify-between px-5 py-4 cursor-pointer select-none hover:bg-zinc-50 transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
-        <div className="min-w-0 flex-1">
-          <div className="font-medium text-zinc-900 truncate">{title}</div>
-          {subtitle && (
-            <div className="text-sm text-zinc-500 truncate mt-0.5">{subtitle}</div>
-          )}
-        </div>
-        <div className="flex items-center gap-3 ml-4 shrink-0">
+        <div className="flex justify-between w-full items-center gap-3 ml-3 mr-3 shrink-0">
           <button
             type="button"
             onClick={(e) => {
@@ -294,6 +283,14 @@ export default function ExperienceSection({
           ))}
         </div>
       )}
+      <button
+          type="button"
+          onClick={onAdd}
+          disabled={experience.length >= MAX_EXPERIENCES}
+          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <span className="text-base leading-none">+</span> Add Experience
+        </button>
     </div>
   );
 }

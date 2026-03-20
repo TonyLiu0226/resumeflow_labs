@@ -120,23 +120,14 @@ function ProjectItem({ project, index, onUpdate, onRemove }: ItemProps) {
     onUpdate(project.id, { [field]: value });
   };
 
-  const title = project.title || `Project ${index + 1}`;
-  const dateRange = [project.startDate, project.endDate].filter(Boolean).join(" – ");
-
   return (
     <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
       {/* Header */}
       <div
-        className="flex items-center justify-between px-5 py-4 cursor-pointer select-none hover:bg-zinc-50 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 cursor-pointer select-none hover:bg-zinc-50 transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
-        <div className="min-w-0 flex-1">
-          <div className="font-medium text-zinc-900 truncate">{title}</div>
-          {dateRange && (
-            <div className="text-sm text-zinc-500 truncate mt-0.5">{dateRange}</div>
-          )}
-        </div>
-        <div className="flex items-center gap-3 ml-4 shrink-0">
+        <div className="flex justify-between w-full items-center gap-3 ml-3 mr-3 shrink-0">
           <button
             type="button"
             onClick={(e) => {
@@ -283,6 +274,14 @@ export default function ProjectsSection({
           ))}
         </div>
       )}
+      <button
+          type="button"
+          onClick={onAdd}
+          disabled={projects.length >= MAX_PROJECTS}
+          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <span className="text-base leading-none">+</span> Add Project
+        </button>
     </div>
   );
 }
