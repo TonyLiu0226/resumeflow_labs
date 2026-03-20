@@ -1,6 +1,5 @@
 FROM node:22-bookworm-slim AS base
 
-ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 FROM base AS deps
@@ -16,6 +15,8 @@ RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
+ENV NODE_ENV=production
+ENV PORT=2018
 
 # Install TeX Live packages needed by the resume template.
 RUN apt-get update \
@@ -30,6 +31,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-EXPOSE 2019
+EXPOSE 2018
 
 CMD ["node", "server.js"]

@@ -1,13 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
-
-// Point pdf.js at its own worker bundled in node_modules
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
 
 interface PdfPreviewProps {
   /** Blob URL (or any URL) of the PDF to render */
@@ -35,6 +28,12 @@ export default function PdfPreview({ url }: PdfPreviewProps) {
       setError(null);
 
       try {
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+          "pdfjs-dist/build/pdf.worker.min.mjs",
+          import.meta.url
+        ).toString();
+
         const loadingTask = pdfjsLib.getDocument(url);
         const pdf = await loadingTask.promise;
         if (cancelled) return;
@@ -60,7 +59,7 @@ export default function PdfPreview({ url }: PdfPreviewProps) {
 
           const ctx = canvas.getContext("2d");
           if (!ctx) continue;
-          await page.render({ canvasContext: ctx, viewport }).promise;
+          await page.render({ canvas, canvasContext: ctx, viewport }).promise;
         }
       } catch (err) {
         if (!cancelled) {

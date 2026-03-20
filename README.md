@@ -8,7 +8,7 @@ If you want PDF generation to work without installing TeX on your machine, run t
 docker compose up --build
 ```
 
-Then open [http://localhost:2019](http://localhost:2019).
+Then open [http://localhost:2018](http://localhost:2018).
 
 The container includes TeX Live, so `/api/resume/render` can run `pdflatex` out of the box.
 

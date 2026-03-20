@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: resumeflow
     ports:
-      - "2019:2019"
+      - "2018:2018"
     environment:
       - NODE_ENV=production
+      - PORT=2018
