@@ -321,7 +321,7 @@ export default function ResumeForm() {
             type="button"
             disabled={isBuilding}
             onClick={handlePreview}
-            className="flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
+            className="cursor-pointer flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
           >
             {isBuilding ? (
               <>
@@ -355,16 +355,15 @@ export default function ResumeForm() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  className={`cursor-pointer relative flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
                     isActive
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent text-zinc-500 hover:text-zinc-800 hover:border-zinc-300"
                   }`}
                 >
                   <span>{tab.label}</span>
-                  {count > 0 && (
                     <span
-                      className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-xs font-semibold ${
+                      className={`cursor-pointer inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 rounded-full text-xs font-semibold ${
                         isActive
                           ? "bg-blue-100 text-blue-700"
                           : "bg-zinc-100 text-zinc-500"
@@ -372,7 +371,6 @@ export default function ResumeForm() {
                     >
                       {count}
                     </span>
-                  )}
                 </button>
               );
             })}
@@ -452,7 +450,7 @@ export default function ResumeForm() {
                   <button
                     type="button"
                     onClick={handlePreview}
-                    className="mt-4 text-sm text-blue-600 hover:underline"
+                    className="cursor-pointer mt-4 text-sm text-blue-600 hover:underline"
                   >
                     Try again
                   </button>
@@ -473,7 +471,7 @@ export default function ResumeForm() {
                         type="button"
                         disabled={isBuilding}
                         onClick={handlePreview}
-                        className="mt-10 flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
+                        className="cursor-pointer mt-10 flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
                     >Preview Resume</button>
                 </>
               )}

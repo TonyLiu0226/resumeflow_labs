@@ -81,7 +81,7 @@ function CategoryCard({
         <button
           type="button"
           onClick={() => onRemove(category.id)}
-          className="shrink-0 text-xs text-red-500 hover:text-red-700 px-2 py-1.5 rounded-md hover:bg-red-50 transition-colors"
+          className="cursor-pointer shrink-0 text-xs text-red-500 hover:text-red-700 px-2 py-1.5 rounded-md hover:bg-red-50 transition-colors"
         >
           Remove
         </button>
@@ -101,7 +101,7 @@ function CategoryCard({
                 <button
                   type="button"
                   onClick={() => removeSkill(skill)}
-                  className="text-blue-400 hover:text-blue-700 transition-colors leading-none"
+                  className="cursor-pointer text-blue-400 hover:text-blue-700 transition-colors leading-none"
                   aria-label={`Remove ${skill}`}
                 >
                   ×
@@ -141,7 +141,7 @@ function CategoryCard({
               type="button"
               onClick={addSkill}
               disabled={!skillInput.trim() || !canAddSkill}
-              className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="cursor-pointer px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Add
             </button>
@@ -199,7 +199,7 @@ export default function SkillsSection({
           type="button"
           onClick={onAddCategory}
           disabled={atCategoryLimit}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Category
         </button>
@@ -252,7 +252,7 @@ export default function SkillsSection({
             <button
               type="button"
               onClick={onAddCategory}
-              className="text-blue-600 hover:underline"
+              className="cursor-pointer text-blue-600 hover:underline"
             >
               creating a category
             </button>
@@ -277,7 +277,7 @@ export default function SkillsSection({
           type="button"
           onClick={onAddCategory}
           disabled={atCategoryLimit}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Category
         </button>

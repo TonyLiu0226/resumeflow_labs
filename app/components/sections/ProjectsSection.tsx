@@ -65,7 +65,7 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
               <button
                 type="button"
                 onClick={() => removeBullet(idx)}
-                className="mt-1.5 text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors shrink-0"
+                className="cursor-pointer mt-1.5 text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors shrink-0"
                 aria-label="Remove bullet"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -91,7 +91,7 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
             type="button"
             onClick={addBullet}
             disabled={!input.trim()}
-            className="self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Add
           </button>
@@ -134,7 +134,7 @@ function ProjectItem({ project, index, onUpdate, onRemove }: ItemProps) {
               e.stopPropagation();
               onRemove(project.id);
             }}
-            className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
+            className="cursor-pointer text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
           >
             Remove
           </button>
@@ -241,7 +241,7 @@ export default function ProjectsSection({
           type="button"
           onClick={onAdd}
           disabled={projects.length >= MAX_PROJECTS}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Project
         </button>
@@ -255,7 +255,7 @@ export default function ProjectsSection({
             <button
               type="button"
               onClick={onAdd}
-              className="text-blue-600 hover:underline"
+              className="cursor-pointer text-blue-600 hover:underline"
             >
               Add your first project
             </button>
@@ -278,7 +278,7 @@ export default function ProjectsSection({
           type="button"
           onClick={onAdd}
           disabled={projects.length >= MAX_PROJECTS}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Project
         </button>

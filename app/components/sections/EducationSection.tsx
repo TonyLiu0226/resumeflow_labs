@@ -63,7 +63,7 @@ function EducationItem({ education, index, onUpdate, onRemove }: ItemProps) {
               e.stopPropagation();
               onRemove(education.id);
             }}
-            className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
+            className="cursor-pointer text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
           >
             Remove
           </button>
@@ -147,7 +147,7 @@ function EducationItem({ education, index, onUpdate, onRemove }: ItemProps) {
                 type="button"
                 onClick={addCourse}
                 disabled={!courseInput.trim() || education.courses.length >= MAX_COURSES_PER_EDUCATION}
-                className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="cursor-pointer px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Add
               </button>
@@ -163,7 +163,7 @@ function EducationItem({ education, index, onUpdate, onRemove }: ItemProps) {
                     <button
                       type="button"
                       onClick={() => removeCourse(idx)}
-                      className="text-blue-400 hover:text-blue-700 transition-colors leading-none"
+                      className="cursor-pointer text-blue-400 hover:text-blue-700 transition-colors leading-none"
                       aria-label={`Remove ${course}`}
                     >
                       ×
@@ -207,7 +207,7 @@ export default function EducationSection({
           type="button"
           onClick={onAdd}
           disabled={education.length >= MAX_EDUCATIONS}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Education
         </button>
@@ -221,7 +221,7 @@ export default function EducationSection({
             <button
               type="button"
               onClick={onAdd}
-              className="text-blue-600 hover:underline"
+              className="cursor-pointer text-blue-600 hover:underline"
             >
               Add your first entry
             </button>
@@ -244,7 +244,7 @@ export default function EducationSection({
           type="button"
           onClick={onAdd}
           disabled={education.length >= MAX_EDUCATIONS}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Education
         </button>

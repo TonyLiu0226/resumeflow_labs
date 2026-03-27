@@ -3,6 +3,7 @@ import { MAX_BULLETS_PER_EXPERIENCE, MAX_EXPERIENCES } from "../../constants/con
 
 import { useState, type KeyboardEvent } from "react";
 import type { Experience } from "../../types/resume";
+import Image from "next/image";
 
 
 
@@ -21,6 +22,7 @@ interface BulletListProps {
 
 function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
   const [input, setInput] = useState("");
+  const [isGeneratingBullet, setIsGeneratingBullet] = useState(false);
 
   const addBullet = () => {
     const trimmed = input.trim();
@@ -28,6 +30,24 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
     onUpdate([...bullets, trimmed]);
     setInput("");
   };
+
+  const generateBullet = async () => {
+    setIsGeneratingBullet(true);
+    const result = await fetch("/api/bullets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ bullet: input }),
+    });
+    const data = await result.json();
+    if (!result.ok) {
+      setIsGeneratingBullet(false);
+      return;
+    }
+    setInput(data.bullet);
+    setIsGeneratingBullet(false);
+  }
 
   const removeBullet = (idx: number) => {
     onUpdate(bullets.filter((_, i) => i !== idx));
@@ -68,7 +88,7 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
               <button
                 type="button"
                 onClick={() => removeBullet(idx)}
-                className="mt-1.5 text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors shrink-0"
+                className="cursor-pointer mt-1.5 text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors shrink-0"
                 aria-label="Remove bullet"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -94,9 +114,17 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
             type="button"
             onClick={addBullet}
             disabled={!input.trim()}
-            className="self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Add
+          </button>
+          <button
+            type="button"
+            onClick={generateBullet}
+            disabled={!input.trim() || isGeneratingBullet}
+            className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          > 
+            <span><Image src="/ai.png" alt="AI" className="w-4 h-4" width={8} height={8} /></span>
           </button>
         </div>
       )}
@@ -137,7 +165,7 @@ function ExperienceItem({ experience, index, onUpdate, onRemove }: ItemProps) {
               e.stopPropagation();
               onRemove(experience.id);
             }}
-            className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
+            className="cursor-pointer text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded-md hover:bg-red-50 transition-colors"
           >
             Remove
           </button>
@@ -250,7 +278,7 @@ export default function ExperienceSection({
           type="button"
           onClick={onAdd}
           disabled={experience.length >= MAX_EXPERIENCES}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Experience
         </button>
@@ -264,7 +292,7 @@ export default function ExperienceSection({
             <button
               type="button"
               onClick={onAdd}
-              className="text-blue-600 hover:underline"
+              className="cursor-pointer text-blue-600 hover:underline"
             >
               Add your first entry
             </button>
@@ -287,7 +315,7 @@ export default function ExperienceSection({
           type="button"
           onClick={onAdd}
           disabled={experience.length >= MAX_EXPERIENCES}
-          className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <span className="text-base leading-none">+</span> Add Experience
         </button>

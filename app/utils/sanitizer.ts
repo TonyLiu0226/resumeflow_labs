@@ -9,7 +9,7 @@
  *   5. Replace `~` and `^` last (they introduce `{}` which must not be re-escaped).
  */
 export function escapeLatex(str: string): string {
-  return str
+    return str
     .replace(/\\/g, "\x00BACKSLASH\x00")
     .replace(/\{/g, "\\{")
     .replace(/\}/g, "\\}")
@@ -21,4 +21,4 @@ export function escapeLatex(str: string): string {
     .replace(/\x00BACKSLASH\x00/g, "\\textbackslash{}")
     .replace(/~/g, "\\textasciitilde{}")
     .replace(/\^/g, "\\textasciicircum{}");
-}
+  }
