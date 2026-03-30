@@ -1,4 +1,17 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: resumeflow_db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: resumeflow
+      POSTGRES_PASSWORD: resumeflow
+      POSTGRES_DB: resumeflow
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   resumeflow:
     build:
       context: .
@@ -9,3 +22,9 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=2018
+      - DATABASE_URL=postgresql://resumeflow:resumeflow@postgres:5432/resumeflow?schema=public
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

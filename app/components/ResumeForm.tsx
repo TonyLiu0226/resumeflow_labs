@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import type {
   ContactInfo,
   Education,
@@ -131,6 +132,7 @@ function loadFromLocalStorage(): ResumeFormData | null {
 // ─── ResumeForm ────────────────────────────────────────────────────────────────
 
 export default function ResumeForm() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>("contact");
   const [data, setData] = useState<ResumeFormData>(() => {
     if (typeof window !== "undefined") {
@@ -317,24 +319,40 @@ export default function ResumeForm() {
             <h1 className="text-lg font-bold text-zinc-900">ResumeFlow Labs</h1>
             <p className="text-xs text-zinc-400">Resume Builder</p>
           </div>
-          <button
-            type="button"
-            disabled={isBuilding}
-            onClick={handlePreview}
-            className="cursor-pointer flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
-          >
-            {isBuilding ? (
-              <>
-                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                </svg>
-                Building…
-              </>
-            ) : (
-              "Preview Resume →"
+          <div className="flex items-center gap-4">
+            {session?.user && (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-zinc-600">
+                  {session.user.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                  className="cursor-pointer text-sm text-zinc-500 hover:text-zinc-800 transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
             )}
-          </button>
+            <button
+              type="button"
+              disabled={isBuilding}
+              onClick={handlePreview}
+              className="cursor-pointer flex items-center gap-2 px-5 py-2 bg-zinc-900 text-white text-sm font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-60 disabled:cursor-wait transition-colors"
+            >
+              {isBuilding ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Building…
+                </>
+              ) : (
+                "Preview Resume →"
+              )}
+            </button>
+          </div>
         </div>
       </header>
 

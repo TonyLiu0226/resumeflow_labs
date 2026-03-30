@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Users ──────────────────────────────────────────────────────────────────────
+
+model User {
+  id       String   @id @default(uuid()) @db.Uuid
+  email    String   @unique
+  password String
+  resumes  Resume[]
+
+  @@map("users")
+}
+
+// ─── Resumes ────────────────────────────────────────────────────────────────────
+
+model Resume {
+  id           String      @id @default(uuid()) @db.Uuid
+  userId       String      @map("user_id") @db.Uuid
+  dateCreated  DateTime    @default(now()) @map("date_created")
+  dateModified DateTime    @updatedAt @map("date_modified")
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact      Contact[]
+  education    Education[]
+  experience   Experience[]
+  projects     Project[]
+  skills       Skills[]
+
+  @@map("resumes")
+}
+
+// ─── Contact ────────────────────────────────────────────────────────────────────
+
+model Contact {
+  id       String @id @default(uuid()) @db.Uuid
+  resumeId String @map("resume_id") @db.Uuid
+  email    String @default("")
+  phone    String @default("")
+  github   String @default("")
+  linkedin String @default("")
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+// ─── Education ──────────────────────────────────────────────────────────────────
+
+model Education {
+  id           String   @id @default(uuid()) @db.Uuid
+  resumeId     String   @map("resume_id") @db.Uuid
+  school       String   @default("")
+  location     String   @default("")
+  degree       String   @default("")
+  dateAchieved String   @default("") @map("date_achieved")
+  resume       Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  courses      Course[]
+
+  @@map("education")
+}
+
+model Course {
+  id          String    @id @default(uuid()) @db.Uuid
+  educationId String    @map("education_id") @db.Uuid
+  name        String    @default("")
+  education   Education @relation(fields: [educationId], references: [id], onDelete: Cascade)
+
+  @@map("courses")
+}
+
+// ─── Experience ─────────────────────────────────────────────────────────────────
+
+model Experience {
+  id          String      @id @default(uuid()) @db.Uuid
+  resumeId    String      @map("resume_id") @db.Uuid
+  jobTitle    String      @default("") @map("job_title")
+  companyName String      @default("") @map("company_name")
+  location    String      @default("")
+  startDate   String      @default("") @map("start_date")
+  endDate     String      @default("") @map("end_date")
+  resume      Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  bullets     ExpBullet[]
+
+  @@map("experiences")
+}
+
+model ExpBullet {
+  id           String     @id @default(uuid()) @db.Uuid
+  experienceId String     @map("experience_id") @db.Uuid
+  content      String     @default("")
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+
+  @@map("exp_bullets")
+}
+
+// ─── Projects ───────────────────────────────────────────────────────────────────
+
+model Project {
+  id           String          @id @default(uuid()) @db.Uuid
+  resumeId     String          @map("resume_id") @db.Uuid
+  projectTitle String          @default("") @map("project_title")
+  projectStart String          @default("") @map("project_start")
+  projectEnd   String          @default("") @map("project_end")
+  github       String          @default("")
+  resume       Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  bullets      ProjectBullet[]
+
+  @@map("projects")
+}
+
+model ProjectBullet {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @map("project_id") @db.Uuid
+  content   String  @default("")
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("project_bullets")
+}
+
+// ─── Skills ─────────────────────────────────────────────────────────────────────
+
+model Skills {
+  id         String          @id @default(uuid()) @db.Uuid
+  resumeId   String          @map("resume_id") @db.Uuid
+  resume     Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  categories SkillCategory[]
+
+  @@map("skills")
+}
+
+model SkillCategory {
+  id       String  @id @default(uuid()) @db.Uuid
+  skillsId String  @map("skills_id") @db.Uuid
+  skills   Skills  @relation(fields: [skillsId], references: [id], onDelete: Cascade)
+  items    Skill[]
+
+  @@map("skill_categories")
+}
+
+model Skill {
+  id         String        @id @default(uuid()) @db.Uuid
+  categoryId String        @map("category_id") @db.Uuid
+  name       String        @default("")
+  category   SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("skill_items")
+}
