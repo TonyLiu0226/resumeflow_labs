@@ -61,3 +61,33 @@ export interface ResumePayload {
   projects: Project[];
   skillCategories: SkillCategoryPayload[];
 }
+
+export interface ResumeEducation {
+  school: string;
+  location: string;
+  degree: string;
+  dateAchieved: string;
+  courses: string[];
+}
+
+export interface ResumeExperience {
+  jobTitle: string;
+  companyName: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  bulletPoints: string[];
+}
+
+export interface ResumeProject {
+  title: string;
+  startDate: string;
+  endDate: string;
+  githubLink: string;
+  bulletPoints: string[];
+}
+
+export interface ResumeSkillCategory {
+  name: string;
+  skills: string[];
+}

@@ -26,11 +26,11 @@ model Resume {
   dateCreated  DateTime    @default(now()) @map("date_created")
   dateModified DateTime    @updatedAt @map("date_modified")
   user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contact      Contact[]
+  contact      Contact?
   education    Education[]
   experience   Experience[]
   projects     Project[]
-  skills       Skills[]
+  skills       Skills?
 
   @@map("resumes")
 }
@@ -39,7 +39,7 @@ model Resume {
 
 model Contact {
   id       String @id @default(uuid()) @db.Uuid
-  resumeId String @map("resume_id") @db.Uuid
+  resumeId String @map("resume_id") @db.Uuid @unique
   email    String @default("")
   phone    String @default("")
   github   String @default("")
@@ -126,7 +126,7 @@ model ProjectBullet {
 
 model Skills {
   id         String          @id @default(uuid()) @db.Uuid
-  resumeId   String          @map("resume_id") @db.Uuid
+  resumeId   String          @map("resume_id") @db.Uuid @unique
   resume     Resume          @relation(fields: [resumeId], references: [id], onDelete: Cascade)
   categories SkillCategory[]
 
@@ -136,6 +136,7 @@ model Skills {
 model SkillCategory {
   id       String  @id @default(uuid()) @db.Uuid
   skillsId String  @map("skills_id") @db.Uuid
+  name String
   skills   Skills  @relation(fields: [skillsId], references: [id], onDelete: Cascade)
   items    Skill[]
 

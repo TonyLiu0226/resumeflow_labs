@@ -87,9 +87,45 @@ function toPayload(data: ResumeFormData) {
   };
 }
 
+/** Convert form data to the shape the /api/resume/save route expects. */
+function toSavePayload(data: ResumeFormData, userId: string, resumeId: string | null) {
+  return {
+    userId,
+    resumeId,
+    contact: data.contact,
+    education: data.education.map((e) => ({
+      school: e.schoolName,
+      location: e.location,
+      degree: e.degree,
+      dateAchieved: e.dateAchieved,
+      courses: e.courses,
+    })),
+    experience: data.experience.map((e) => ({
+      jobTitle: e.jobTitle,
+      companyName: e.companyName,
+      location: e.location,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      bulletPoints: e.bulletPoints,
+    })),
+    projects: data.projects.map((p) => ({
+      title: p.title,
+      startDate: p.startDate,
+      endDate: p.endDate,
+      githubLink: p.githubLink,
+      bulletPoints: p.bulletPoints,
+    })),
+    skillCategories: data.skillCategories.map((cat) => ({
+      name: cat.name,
+      skills: [...cat.skills],
+    })),
+  };
+}
+
 // ─── LocalStorage helpers ──────────────────────────────────────────────────────
 
 const STORAGE_KEY = "resumeflow_form_data";
+const RESUME_ID_KEY = "resumeflow_resume_id";
 
 /** Save form data to localStorage (converts Sets to arrays). */
 function saveToLocalStorage(data: ResumeFormData): void {
@@ -98,6 +134,24 @@ function saveToLocalStorage(data: ResumeFormData): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) {
     console.error("Failed to save to localStorage:", error);
+  }
+}
+
+/** Persist the resume ID to localStorage. */
+function saveResumeIdToLocalStorage(id: string): void {
+  try {
+    localStorage.setItem(RESUME_ID_KEY, id);
+  } catch (error) {
+    console.error("Failed to save resume ID to localStorage:", error);
+  }
+}
+
+/** Load the persisted resume ID from localStorage. */
+function loadResumeIdFromLocalStorage(): string | null {
+  try {
+    return localStorage.getItem(RESUME_ID_KEY);
+  } catch {
+    return null;
   }
 }
 
@@ -134,6 +188,12 @@ function loadFromLocalStorage(): ResumeFormData | null {
 export default function ResumeForm() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>("contact");
+  const [resumeId, setResumeId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return loadResumeIdFromLocalStorage();
+    }
+    return null;
+  });
   const [data, setData] = useState<ResumeFormData>(() => {
     if (typeof window !== "undefined") {
       const saved = loadFromLocalStorage();
@@ -152,6 +212,10 @@ export default function ResumeForm() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isBuilding, setIsBuilding] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+
+  // Save state
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
 
   // ── Auto-save to localStorage whenever data changes ──────────────────────────
   useEffect(() => {
@@ -264,12 +328,51 @@ export default function ResumeForm() {
     skills: data.skillCategories.reduce((sum, c) => sum + c.skills.size, 0),
   };
 
+  // ── Save handler ─────────────────────────────────────────────────────────
+  const saveResume = useCallback(async () => {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    setIsSaving(true);
+    setSaveStatus("idle");
+
+    try {
+      const res = await fetch("/api/resume/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(toSavePayload(data, userId, resumeId)),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to save resume");
+      }
+
+      const { id } = await res.json();
+      if (id && id !== resumeId) {
+        setResumeId(id);
+        saveResumeIdToLocalStorage(id);
+      }
+
+      setSaveStatus("success");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (error) {
+      console.error("Save error:", error);
+      setSaveStatus("error");
+      setTimeout(() => setSaveStatus("idle"), 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [data, resumeId, session?.user?.id]);
+
   // ── Preview handler (write → render → display) ───────────────────────────
   const handlePreview = useCallback(async () => {
     setIsBuilding(true);
     setPreviewError(null);
 
     try {
+      // Save to database in parallel
+      saveResume();
+
       // Step 1: Write LaTeX
       const writeRes = await fetch("/api/resume/write", {
         method: "POST",
@@ -307,7 +410,7 @@ export default function ResumeForm() {
     } finally {
       setIsBuilding(false);
     }
-  }, [data, pdfUrl]);
+  }, [data, pdfUrl, saveResume]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -323,7 +426,7 @@ export default function ResumeForm() {
             {session?.user && (
               <div className="flex items-center gap-3">
                 <span className="text-sm text-zinc-600">
-                  {session.user.name}
+                  {session.user.email}
                 </span>
                 <button
                   type="button"
@@ -334,6 +437,33 @@ export default function ResumeForm() {
                 </button>
               </div>
             )}
+
+            {saveStatus === "success" && (
+              <span className="text-sm text-green-600 font-medium">Saved!</span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-sm text-red-600 font-medium">Save failed</span>
+            )}
+
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={saveResume}
+              className="cursor-pointer flex items-center gap-2 px-5 py-2 border border-zinc-300 bg-white text-zinc-800 text-sm font-medium rounded-lg hover:bg-zinc-100 disabled:opacity-60 disabled:cursor-wait transition-colors"
+            >
+              {isSaving ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving…
+                </>
+              ) : (
+                "Save Resume"
+              )}
+            </button>
+
             <button
               type="button"
               disabled={isBuilding}
