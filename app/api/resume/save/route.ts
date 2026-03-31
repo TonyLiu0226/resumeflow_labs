@@ -3,7 +3,8 @@ import { prisma } from "../../../lib/prisma";
 import type { ResumeEducation, ResumeExperience, ResumeProject, ResumeSkillCategory } from "../../../types/resume";
 
 export async function POST(request: NextRequest) {
-   const { userId, resumeId, contact, education, experience, projects, skillCategories } = await request.json();
+   const { userId, resumeId, name, contact, education, experience, projects, skillCategories } = await request.json();
+   console.log(resumeId);
     try {
         const newResume = await prisma.resume.upsert({
             where: {
@@ -11,6 +12,7 @@ export async function POST(request: NextRequest) {
             },
             update: {
                 userId: userId as string,
+                ...(name !== undefined && { name: name as string }),
                 contact: {
                     delete: true,
                     create: {
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
             },
             create: {
                 userId: userId as string,
+                name: (name as string) || "Untitled Resume",
                 dateCreated: new Date(),
                 dateModified: new Date(),
                 contact: {

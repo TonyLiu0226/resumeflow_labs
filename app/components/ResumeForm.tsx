@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 import type {
   ContactInfo,
   Education,
@@ -122,82 +123,74 @@ function toSavePayload(data: ResumeFormData, userId: string, resumeId: string | 
   };
 }
 
-// ─── LocalStorage helpers ──────────────────────────────────────────────────────
+// ─── API → FormData transformer ────────────────────────────────────────────────
 
-const STORAGE_KEY = "resumeflow_form_data";
-const RESUME_ID_KEY = "resumeflow_resume_id";
-
-/** Save form data to localStorage (converts Sets to arrays). */
-function saveToLocalStorage(data: ResumeFormData): void {
-  try {
-    const payload = toPayload(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  } catch (error) {
-    console.error("Failed to save to localStorage:", error);
-  }
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function apiResponseToFormData(apiData: any): ResumeFormData {
+  return {
+    contact: {
+      email: apiData.contact?.email ?? "",
+      phone: apiData.contact?.phone ?? "",
+      github: apiData.contact?.github ?? "",
+      linkedin: apiData.contact?.linkedin ?? "",
+    },
+    education: (apiData.education ?? []).map((e: any) => ({
+      id: e.id ?? generateId(),
+      schoolName: e.school ?? "",
+      location: e.location ?? "",
+      degree: e.degree ?? "",
+      dateAchieved: e.dateAchieved ?? "",
+      courses: (e.courses ?? []).map((c: any) => c.name ?? c),
+    })),
+    experience: (apiData.experience ?? []).map((e: any) => ({
+      id: e.id ?? generateId(),
+      jobTitle: e.jobTitle ?? "",
+      companyName: e.companyName ?? "",
+      location: e.location ?? "",
+      startDate: e.startDate ?? "",
+      endDate: e.endDate ?? "",
+      bulletPoints: (e.bullets ?? []).map((b: any) => b.content ?? b),
+    })),
+    projects: (apiData.projects ?? []).map((p: any) => ({
+      id: p.id ?? generateId(),
+      title: p.projectTitle ?? "",
+      startDate: p.projectStart ?? "",
+      endDate: p.projectEnd ?? "",
+      githubLink: p.github ?? "",
+      bulletPoints: (p.bullets ?? []).map((b: any) => b.content ?? b),
+    })),
+    skillCategories: (apiData.skills?.categories ?? []).map((cat: any) => ({
+      id: cat.id ?? generateId(),
+      name: cat.name ?? "",
+      skills: new Set<string>((cat.items ?? []).map((i: any) => i.name ?? i)),
+    })),
+  };
 }
-
-/** Persist the resume ID to localStorage. */
-function saveResumeIdToLocalStorage(id: string): void {
-  try {
-    localStorage.setItem(RESUME_ID_KEY, id);
-  } catch (error) {
-    console.error("Failed to save resume ID to localStorage:", error);
-  }
-}
-
-/** Load the persisted resume ID from localStorage. */
-function loadResumeIdFromLocalStorage(): string | null {
-  try {
-    return localStorage.getItem(RESUME_ID_KEY);
-  } catch {
-    return null;
-  }
-}
-
-/** Stored skill category type (with skills as array instead of Set). */
-interface StoredSkillCategory {
-  id: string;
-  name: string;
-  skills: string[];
-}
-
-/** Load form data from localStorage (converts arrays back to Sets). */
-function loadFromLocalStorage(): ResumeFormData | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return null;
-
-    const parsed = JSON.parse(stored);
-    // Convert skill arrays back to Sets
-    if (parsed.skillCategories) {
-      parsed.skillCategories = parsed.skillCategories.map((cat: StoredSkillCategory) => ({
-        ...cat,
-        skills: new Set(cat.skills || []),
-      }));
-    }
-    return parsed;
-  } catch (error) {
-    console.error("Failed to load from localStorage:", error);
-    return null;
-  }
-}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 // ─── ResumeForm ────────────────────────────────────────────────────────────────
 
-export default function ResumeForm() {
+interface ResumeFormProps {
+  resumeId?: string | null;
+}
+
+export default function ResumeForm({ resumeId: initialResumeId }: ResumeFormProps) {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>("contact");
   const [resumeId, setResumeId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return loadResumeIdFromLocalStorage();
-    }
+    if (initialResumeId) return initialResumeId;
     return null;
   });
   const [data, setData] = useState<ResumeFormData>(() => {
-    if (typeof window !== "undefined") {
-      const saved = loadFromLocalStorage();
-      if (saved) return saved;
+    // If we have an initialResumeId, start with defaults — useEffect will load from API
+    if (initialResumeId) {
+      return {
+        contact: DEFAULT_CONTACT,
+        education: [],
+        experience: [],
+        projects: [],
+        skillCategories: [],
+      };
     }
     return {
       contact: DEFAULT_CONTACT,
@@ -207,6 +200,35 @@ export default function ResumeForm() {
       skillCategories: [],
     };
   });
+  const [isLoadingResume, setIsLoadingResume] = useState(!!initialResumeId);
+
+  // ── Load resume from API when resumeId prop is provided ─────────────────────
+  useEffect(() => {
+    if (!initialResumeId) return;
+
+    let cancelled = false;
+
+    async function loadResume() {
+      setIsLoadingResume(true);
+      try {
+        const res = await fetch(`/api/resume/load?id=${initialResumeId}`);
+        if (!res.ok) throw new Error("Failed to load resume");
+        const apiData = await res.json();
+        if (cancelled) return;
+
+        const formData = apiResponseToFormData(apiData);
+        setData(formData);
+        setResumeId(initialResumeId ?? null);
+      } catch (error) {
+        console.error("Error loading resume:", error);
+      } finally {
+        if (!cancelled) setIsLoadingResume(false);
+      }
+    }
+
+    loadResume();
+    return () => { cancelled = true; };
+  }, [initialResumeId]);
 
   // Preview state
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
@@ -216,11 +238,6 @@ export default function ResumeForm() {
   // Save state
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
-
-  // ── Auto-save to localStorage whenever data changes ──────────────────────────
-  useEffect(() => {
-    saveToLocalStorage(data);
-  }, [data]);
 
   // ── Contact ──────────────────────────────────────────────────────────────────
   const updateContact = (contact: ContactInfo) =>
@@ -350,7 +367,6 @@ export default function ResumeForm() {
       const { id } = await res.json();
       if (id && id !== resumeId) {
         setResumeId(id);
-        saveResumeIdToLocalStorage(id);
       }
 
       setSaveStatus("success");
@@ -418,10 +434,10 @@ export default function ResumeForm() {
       {/* ── Top bar ──────────────────────────────────────────────────────────── */}
       <header className="bg-white border-b border-zinc-200 shrink-0 z-20">
         <div className="px-6 flex items-center justify-between py-3">
-          <div>
-            <h1 className="text-lg font-bold text-zinc-900">ResumeFlow Labs</h1>
+          <Link href="/" className="group">
+            <h1 className="text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">ResumeFlow Labs</h1>
             <p className="text-xs text-zinc-400">Resume Builder</p>
-          </div>
+          </Link>
           <div className="flex items-center gap-4">
             {session?.user && (
               <div className="flex items-center gap-3">
@@ -486,8 +502,21 @@ export default function ResumeForm() {
         </div>
       </header>
 
+      {/* ── Loading overlay when fetching resume from API ─────────────────── */}
+      {isLoadingResume && (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <svg className="animate-spin h-8 w-8 text-zinc-400 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <p className="text-sm text-zinc-500">Loading resume…</p>
+          </div>
+        </div>
+      )}
+
       {/* ── Two-column body ──────────────────────────────────────────────────── */}
-      <div className="flex flex-1 min-h-0">
+      <div className={`flex flex-1 min-h-0 ${isLoadingResume ? "hidden" : ""}`}>
         {/* ── Left: Form ─────────────────────────────────────────────────────── */}
         <div className="w-1/2 flex flex-col min-h-0 border-r border-zinc-200">
           {/* Tab bar */}

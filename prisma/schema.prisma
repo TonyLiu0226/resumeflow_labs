@@ -21,8 +21,9 @@ model User {
 // ─── Resumes ────────────────────────────────────────────────────────────────────
 
 model Resume {
-  id           String      @id @default(uuid()) @db.Uuid
+  id           String      @id @db.Uuid
   userId       String      @map("user_id") @db.Uuid
+  name         String
   dateCreated  DateTime    @default(now()) @map("date_created")
   dateModified DateTime    @updatedAt @map("date_modified")
   user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
