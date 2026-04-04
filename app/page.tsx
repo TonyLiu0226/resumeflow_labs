@@ -166,7 +166,7 @@ export default function Home() {
       </div>
 
       {/* ── Content ────────────────────────────────────────────────────────────── */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-8">
+      <main className={`flex-1 w-full mx-auto px-6 py-8 ${activeTab === "keywords" ? "max-w-[1600px]" : "max-w-6xl"}`}>
         {/* ── My Resumes ─────────────────────────────────────────────────────── */}
         {activeTab === "resumes" && (
           <section>

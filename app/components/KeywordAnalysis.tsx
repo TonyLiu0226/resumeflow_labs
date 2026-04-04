@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ResumeEditor, { type KeywordResult } from "./ResumeEditor";
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -14,12 +15,6 @@ interface ResumeSummary {
 interface ExtractedKeyword {
   keyword: string;
   importance_level: "High" | "Medium" | "Low";
-}
-
-interface KeywordResult {
-  keyword: string;
-  importance: "High" | "Medium" | "Low";
-  found: boolean;
 }
 
 interface AnalysisResult {
@@ -272,15 +267,17 @@ export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
     : [];
 
   return (
-    <section>
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-zinc-900">
-          Resume Keyword Analysis
-        </h2>
-        <p className="text-sm text-zinc-500 mt-1">
-          Compare your resume against a job description to find missing keywords
-        </p>
-      </div>
+    <section className="flex gap-6 items-start">
+      {/* ── Left: analysis panel ──────────────────────────────────────────────── */}
+      <div className="w-[420px] shrink-0 space-y-5 sticky top-4 max-h-[calc(100vh-7rem)] overflow-y-auto pb-4">
+        <div>
+          <h2 className="text-xl font-semibold text-zinc-900">
+            Resume Keyword Analysis
+          </h2>
+          <p className="text-sm text-zinc-500 mt-1">
+            Compare your resume against a job description to find missing keywords
+          </p>
+        </div>
 
       <div className="bg-white rounded-xl border border-zinc-200 shadow-sm p-6 space-y-5">
         {/* Resume selector */}
@@ -368,23 +365,22 @@ export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
 
       {/* ── Results ───────────────────────────────────────────────────────────────── */}
       {result && (
-        <div className="mt-8 space-y-6">
+        <div className="space-y-4">
           {/* Grade card */}
           <div
-            className={`rounded-xl border p-6 flex items-center gap-6 ${gradeBg(result.grade)}`}
+            className={`rounded-xl border p-5 flex items-center gap-5 ${gradeBg(result.grade)}`}
           >
             <div
-              className={`text-6xl font-extrabold leading-none ${gradeColor(result.grade)}`}
+              className={`text-5xl font-extrabold leading-none ${gradeColor(result.grade)}`}
             >
               {result.grade}
             </div>
             <div>
-              <p className="text-lg font-semibold text-zinc-900">
+              <p className="text-base font-semibold text-zinc-900">
                 {result.percentage}% keyword match
               </p>
-              <p className="text-sm text-zinc-600 mt-0.5">
-                {result.matchCount} of {result.totalCount} keywords found on
-                your resume for{" "}
+              <p className="text-xs text-zinc-600 mt-0.5">
+                {result.matchCount} of {result.totalCount} found for{" "}
                 <span className="font-medium">{result.jobTitle}</span>
               </p>
             </div>
@@ -392,8 +388,8 @@ export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
 
           {/* Keyword list */}
           <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-zinc-100">
-              <h3 className="text-sm font-semibold text-zinc-900">
+            <div className="px-4 py-3 border-b border-zinc-100">
+              <h3 className="text-xs font-semibold text-zinc-900 uppercase tracking-wider">
                 Keyword Breakdown
               </h3>
             </div>
@@ -401,26 +397,26 @@ export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
               {sortedKeywords.map((kw, idx) => (
                 <li
                   key={idx}
-                  className="px-6 py-3 flex items-center justify-between"
+                  className="px-4 py-2.5 flex items-center justify-between gap-2"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     {kw.found ? (
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600 text-xs font-bold">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-green-100 text-green-600 text-xs font-bold shrink-0">
                         ✓
                       </span>
                     ) : (
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600 text-xs font-bold">
+                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-600 text-xs font-bold shrink-0">
                         ✗
                       </span>
                     )}
                     <span
-                      className={`text-sm ${kw.found ? "text-zinc-700" : "text-zinc-900 font-medium"}`}
+                      className={`text-sm truncate ${kw.found ? "text-zinc-600" : "text-zinc-900 font-medium"}`}
                     >
                       {kw.keyword}
                     </span>
                   </div>
                   <span
-                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
                       kw.importance === "High"
                         ? "bg-red-50 text-red-700"
                         : kw.importance === "Medium"
@@ -436,6 +432,15 @@ export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
           </div>
         </div>
       )}
+      </div>{/* end left panel */}
+
+      {/* ── Right: resume editor ──────────────────────────────────────────────── */}
+      <div className="flex-1 min-w-0 sticky top-4 max-h-[calc(100vh-7rem)] overflow-y-auto pb-4">
+        <ResumeEditor
+          resumeId={selectedResumeId || null}
+          keywords={result?.keywords ?? []}
+        />
+      </div>
     </section>
   );
 }
