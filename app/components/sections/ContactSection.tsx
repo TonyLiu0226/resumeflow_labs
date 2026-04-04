@@ -22,10 +22,9 @@ export default function ContactSection({ contact, onChange }: Props) {
       <div>
         <h2 className="text-xl font-semibold text-zinc-900">Contact Information</h2>
       </div>
-
       <div className="bg-white rounded-xl border border-zinc-200 p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass} htmlFor="contact-email">
+          <label className={labelClass} htmlFor="contact-name">
             Email
           </label>
           <input
@@ -34,6 +33,20 @@ export default function ContactSection({ contact, onChange }: Props) {
             value={contact.email}
             onChange={(e) => handleChange("email", e.target.value)}
             placeholder="you@example.com"
+            className={inputClass}
+          />
+        </div>
+      <div className="bg-white rounded-xl border border-zinc-200 p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label className={labelClass} htmlFor="contact-email">
+            Name
+          </label>
+          <input
+            id="contact-name"
+            type="text"
+            value={contact.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+            placeholder="John Doe"
             className={inputClass}
           />
         </div>
@@ -80,6 +93,7 @@ export default function ContactSection({ contact, onChange }: Props) {
           />
         </div>
       </div>
+    </div>
     </div>
   );
 }

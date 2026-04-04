@@ -80,7 +80,10 @@ const PREAMBLE = String.raw`%-------------------------
 
 function buildHeading(contact: ResumePayload["contact"]): string {
   const parts: string[] = [];
-
+  let name: string = "";
+  if (contact.name) {
+    name = contact.name;
+  }
   if (contact.phone) {
     parts.push(`\\small Phone: ${escapeLatex(contact.phone)}`);
   }
@@ -105,12 +108,16 @@ function buildHeading(contact: ResumePayload["contact"]): string {
       `\\href{${contact.github}}GitHub: {\\underline{${escapeLatex(display)}}}`
     );
   }
-
-  if (parts.length === 0) return "";
-
-  return `\\begin{center}
-    ${parts.join(" $|$ ")}
-\\end{center}`;
+  let latex: string = ``;
+  if (name) {
+    latex += `\\begin{center}\\textbf{\\Huge \\scshape ${escapeLatex(name)}} \\\\ \\vspace{1pt}\\end{center}`;
+  }
+  if (parts.length > 0) {
+    latex += `\\begin{center}`
+    latex += `${parts.join(" $|$ ")}`
+    latex += `\\end{center}`
+  }
+  return latex;
 }
 
 function buildEducation(entries: ResumePayload["education"]): string {

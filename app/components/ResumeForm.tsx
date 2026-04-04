@@ -37,6 +37,7 @@ function generateId(): string {
 }
 
 const DEFAULT_CONTACT: ContactInfo = {
+  name: "",
   github: "",
   phone: "",
   email: "",
@@ -129,6 +130,7 @@ function toSavePayload(data: ResumeFormData, userId: string, resumeId: string | 
 function apiResponseToFormData(apiData: any): ResumeFormData {
   return {
     contact: {
+      name: apiData.contact?.name ?? "",
       email: apiData.contact?.email ?? "",
       phone: apiData.contact?.phone ?? "",
       github: apiData.contact?.github ?? "",

@@ -45,7 +45,8 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
       setIsGeneratingBullet(false);
       return;
     }
-    setInput(data.bullet);
+    // Ensure we always set a string value; fallback to empty string
+    setInput(typeof data?.bullet === "string" ? data.bullet : String(data?.bullet ?? ""));
     setIsGeneratingBullet(false);
   }
 
@@ -113,7 +114,7 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
           <button
             type="button"
             onClick={addBullet}
-            disabled={!input.trim()}
+            disabled={typeof input !== "string" || !input.trim()}
             className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Add
@@ -121,7 +122,7 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
           <button
             type="button"
             onClick={generateBullet}
-            disabled={!input.trim() || isGeneratingBullet}
+            disabled={typeof input !== "string" || !input.trim() || isGeneratingBullet}
             className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           > 
             <span><Image src="/ai.png" alt="AI" className="w-4 h-4" width={8} height={8} /></span>

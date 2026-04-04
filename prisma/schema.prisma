@@ -41,6 +41,7 @@ model Resume {
 model Contact {
   id       String @id @default(uuid()) @db.Uuid
   resumeId String @map("resume_id") @db.Uuid @unique
+  name     String @default("")
   email    String @default("")
   phone    String @default("")
   github   String @default("")

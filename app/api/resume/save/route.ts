@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
+import { randomUUID } from "crypto";
 import type { ResumeEducation, ResumeExperience, ResumeProject, ResumeSkillCategory } from "../../../types/resume";
 
 export async function POST(request: NextRequest) {
@@ -16,6 +17,7 @@ export async function POST(request: NextRequest) {
                 contact: {
                     delete: true,
                     create: {
+                      name: contact.name,
                       email: contact.email,
                       phone: contact.phone,
                       github: contact.github,
@@ -85,12 +87,14 @@ export async function POST(request: NextRequest) {
                 }
             },
             create: {
+                id: typeof resumeId === "string" && resumeId ? (resumeId as string) : randomUUID(),
                 userId: userId as string,
                 name: (name as string) || "Untitled Resume",
                 dateCreated: new Date(),
                 dateModified: new Date(),
                 contact: {
                     create: {
+                        name: contact.name,
                         email: contact.email,
                         phone: contact.phone,
                         github: contact.github,
