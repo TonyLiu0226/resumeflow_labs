@@ -53,7 +53,7 @@ unless they clearly map to a concrete evaluative skill such as communication, le
 7. Do not invent qualifications that are not explicitly stated or strongly implied.
 8. Ignore filler phrases unless they reflect a meaningful skill or expectation.
 9. If a requirement appears multiple times or is emphasized strongly, treat it as more important.
-11. Output the results in strict JSON.
+11. Output the results in strict JSON. DO NOT include any other text or information, ONLY return the JSON.
 
 Output format:
 {

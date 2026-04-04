@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ResumeTable from "./components/ResumeTable";
+import KeywordAnalysis from "./components/KeywordAnalysis";
 import crypto from "crypto";
 interface ResumeSummary {
   id: string;
@@ -12,10 +13,11 @@ interface ResumeSummary {
   dateModified: string;
 }
 
-type DashboardTab = "resumes" | "jobs" | "coverLetters";
+type DashboardTab = "resumes" | "keywords" | "jobs" | "coverLetters";
 
 const DASHBOARD_TABS: { id: DashboardTab; label: string }[] = [
   { id: "resumes", label: "My Resumes" },
+  { id: "keywords", label: "Keywords" },
   { id: "jobs", label: "My Jobs" },
   { id: "coverLetters", label: "My Cover Letters" },
 ];
@@ -198,6 +200,11 @@ export default function Home() {
               <ResumeTable resumes={resumes} onDelete={handleDelete} />
             )}
           </section>
+        )}
+
+        {/* ── Keywords ─────────────────────────────────────────────────────── */}
+        {activeTab === "keywords" && (
+          <KeywordAnalysis resumes={resumes} />
         )}
 
         {/* ── My Jobs ────────────────────────────────────────────────────────── */}
