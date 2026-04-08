@@ -17,6 +17,7 @@ import ExperienceSection from "./sections/ExperienceSection";
 import ProjectsSection from "./sections/ProjectsSection";
 import SkillsSection from "./sections/SkillsSection";
 import PdfPreview from "./PdfPreview";
+import { useRouter } from "next/navigation";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -177,6 +178,7 @@ interface ResumeFormProps {
 }
 
 export default function ResumeForm({ resumeId: initialResumeId }: ResumeFormProps) {
+  const router = useRouter();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<Tab>("contact");
   const [resumeId, setResumeId] = useState<string | null>(() => {
@@ -455,7 +457,11 @@ export default function ResumeForm({ resumeId: initialResumeId }: ResumeFormProp
                 </button>
               </div>
             )}
-
+            <button
+            type="button"
+            onClick={() => router.push("/")}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 text-white text-xs font-medium rounded-lg hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+          >Back to home</button>  
             {saveStatus === "success" && (
               <span className="text-sm text-green-600 font-medium">Saved!</span>
             )}
