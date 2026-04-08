@@ -3,6 +3,7 @@
 import { useState, type KeyboardEvent } from "react";
 import type { Project } from "../../types/resume";
 import { MAX_BULLETS_PER_PROJECT, MAX_PROJECTS } from "../../constants/constants";
+import Image from "next/image";
 
 const inputClass =
   "w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors";
@@ -19,12 +20,31 @@ interface BulletListProps {
 
 function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
   const [input, setInput] = useState("");
+  const [isGeneratingBullet, setIsGeneratingBullet] = useState(false);
 
   const addBullet = () => {
     const trimmed = input.trim();
     if (!trimmed || bullets.length >= max) return;
     onUpdate([...bullets, trimmed]);
     setInput("");
+  };
+
+  const generateBullet = async () => {
+    setIsGeneratingBullet(true);
+    const result = await fetch("/api/project-bullets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ bullet: input }),
+    });
+    const data = await result.json();
+    if (!result.ok) {
+      setIsGeneratingBullet(false);
+      return;
+    }
+    setInput(typeof data?.bullet === "string" ? data.bullet : String(data?.bullet ?? ""));
+    setIsGeneratingBullet(false);
   };
 
   const removeBullet = (idx: number) => {
@@ -90,10 +110,18 @@ function BulletPointList({ bullets, onUpdate, max }: BulletListProps) {
           <button
             type="button"
             onClick={addBullet}
-            disabled={!input.trim()}
+            disabled={typeof input !== "string" || !input.trim()}
             className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             Add
+          </button>
+          <button
+            type="button"
+            onClick={generateBullet}
+            disabled={typeof input !== "string" || !input.trim() || isGeneratingBullet}
+            className="cursor-pointer self-end px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          > 
+            <span><Image src="/ai.png" alt="AI" className="w-4 h-4" width={8} height={8} /></span>
           </button>
         </div>
       )}
