@@ -6,7 +6,7 @@ import type { ResumePayload } from "../types/resume";
 const PREAMBLE = String.raw`%-------------------------
 % Resume in LaTeX — Jake's Resume Template
 %-------------------------
-\documentclass[letterpaper,11pt]{article}
+\documentclass[letterpaper,10pt]{article}
 
 \usepackage{latexsym}
 \usepackage[empty]{fullpage}
@@ -28,7 +28,7 @@ const PREAMBLE = String.raw`%-------------------------
 \renewcommand{\footrulewidth}{0pt}
 
 \addtolength{\oddsidemargin}{-0.6in}
-\addtolength{\evensidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
 \addtolength{\textwidth}{1in}
 \addtolength{\topmargin}{-.5in}
 \addtolength{\textheight}{1.0in}
@@ -52,7 +52,7 @@ const PREAMBLE = String.raw`%-------------------------
 }
 
 \newcommand{\resumeSubheading}[4]{
-  \vspace{-2pt}\item
+  \vspace{1pt}\item
     \begin{tabular*}{0.97\textwidth}[t]{l@{\extracolsep{\fill}}r}
       \textbf{#1} & #2 \\
       \textit{\small#3} & \textit{\small #4} \\
@@ -71,8 +71,8 @@ const PREAMBLE = String.raw`%-------------------------
 \renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
 
 \newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.025in, label={}]}
-\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
-\newcommand{\resumeItemListStart}{\begin{itemize}}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}\vspace{-10pt}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.1in, rightmargin=0.1in]}
 \newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-4pt}}
 `;
 
