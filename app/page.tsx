@@ -3,6 +3,8 @@
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
 import ResumeTable from "./components/ResumeTable";
 import KeywordAnalysis from "./components/KeywordAnalysis";
 import KanbanBoard from "./components/jobs/KanbanBoard";
@@ -138,7 +140,16 @@ export default function Home() {
       <header className="bg-white border-b border-zinc-200 shrink-0">
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between py-4">
           <div>
-            <h1 className="text-lg font-bold text-zinc-900">ResumeFlow Labs</h1>
+            <Link href="/" className="inline-flex">
+              <Image
+                src="/logo.png"
+                alt="JakeiFY"
+                width={220}
+                height={55}
+                className="h-10 w-auto"
+                priority
+              />
+            </Link>
             <p className="text-xs text-zinc-400">Dashboard</p>
           </div>
           {session?.user && (

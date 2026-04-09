@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import type {
   ContactInfo,
   Education,
@@ -439,7 +440,14 @@ export default function ResumeForm({ resumeId: initialResumeId }: ResumeFormProp
       <header className="bg-white border-b border-zinc-200 shrink-0 z-20">
         <div className="px-6 flex items-center justify-between py-3">
           <Link href="/" className="group">
-            <h1 className="text-lg font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">ResumeFlow Labs</h1>
+            <Image
+              src="/logo.png"
+              alt="JakeiFY"
+              width={220}
+              height={55}
+              className="h-10 w-auto"
+              priority
+            />
             <p className="text-xs text-zinc-400">Resume Builder</p>
           </Link>
           <div className="flex items-center gap-4">
