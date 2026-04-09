@@ -36,6 +36,10 @@ export default function Home() {
   const [createError, setCreateError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
 
+  // Keyword analysis pre-population
+  const [keywordResumeId, setKeywordResumeId] = useState<string | undefined>(undefined);
+  const [keywordJobDescription, setKeywordJobDescription] = useState<string | undefined>(undefined);
+
   const fetchResumes = useCallback(async () => {
     const userId = session?.user?.id;
     if (!userId) return;
@@ -122,6 +126,12 @@ export default function Home() {
     }
   }
 
+  function navigateToKeywordsWithData(resumeId: string, jobDescription: string) {
+    setKeywordResumeId(resumeId);
+    setKeywordJobDescription(jobDescription);
+    setActiveTab("keywords");
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-zinc-50">
       {/* ── Header ─────────────────────────────────────────────────────────────── */}
@@ -205,13 +215,20 @@ export default function Home() {
 
         {/* ── Keywords ─────────────────────────────────────────────────────── */}
         {activeTab === "keywords" && (
-          <KeywordAnalysis resumes={resumes} />
+          <KeywordAnalysis 
+            resumes={resumes}
+            initialResumeId={keywordResumeId}
+            initialJobDescription={keywordJobDescription}
+          />
         )}
 
         {/* ── My Jobs ────────────────────────────────────────────────────────── */}
         {activeTab === "jobs" && (
           <section>
-            <KanbanBoard resumes={resumes} />
+            <KanbanBoard 
+              resumes={resumes}
+              onNavigateToKeywords={navigateToKeywordsWithData}
+            />
           </section>
         )}
 

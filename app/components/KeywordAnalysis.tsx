@@ -167,11 +167,17 @@ function buildResumeText(resume: Record<string, unknown>): string {
 
 interface KeywordAnalysisProps {
   resumes: ResumeSummary[];
+  initialResumeId?: string;
+  initialJobDescription?: string;
 }
 
-export default function KeywordAnalysis({ resumes }: KeywordAnalysisProps) {
-  const [selectedResumeId, setSelectedResumeId] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
+export default function KeywordAnalysis({ 
+  resumes,
+  initialResumeId = "",
+  initialJobDescription = ""
+}: KeywordAnalysisProps) {
+  const [selectedResumeId, setSelectedResumeId] = useState(initialResumeId);
+  const [jobDescription, setJobDescription] = useState(initialJobDescription);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);

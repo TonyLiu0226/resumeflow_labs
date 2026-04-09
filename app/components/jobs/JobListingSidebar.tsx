@@ -12,9 +12,10 @@ interface ResumeSummary {
 interface JobListingSidebarProps {
   resumes: ResumeSummary[];
   onApply: (listing: JobListing, resumeId: string, resumeName: string) => Promise<void>;
+  onNavigateToKeywords: (resumeId: string, jobDescription: string) => void;
 }
 
-export default function JobListingSidebar({ resumes, onApply }: JobListingSidebarProps) {
+export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywords }: JobListingSidebarProps) {
   const [listings, setListings] = useState<JobListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<JobListing | null>(null);
@@ -170,6 +171,7 @@ export default function JobListingSidebar({ resumes, onApply }: JobListingSideba
           resumes={resumes}
           onClose={() => setSelectedListing(null)}
           onApply={onApply}
+          onNavigateToKeywords={onNavigateToKeywords}
         />
       )}
     </div>

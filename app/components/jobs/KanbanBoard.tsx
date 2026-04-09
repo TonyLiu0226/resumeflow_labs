@@ -14,9 +14,10 @@ interface ResumeSummary {
 
 interface KanbanBoardProps {
   resumes: ResumeSummary[];
+  onNavigateToKeywords: (resumeId: string, jobDescription: string) => void;
 }
 
-export default function KanbanBoard({ resumes }: KanbanBoardProps) {
+export default function KanbanBoard({ resumes, onNavigateToKeywords }: KanbanBoardProps) {
   const { data: session } = useSession();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -273,7 +274,11 @@ export default function KanbanBoard({ resumes }: KanbanBoardProps) {
       {/* Sidebar + Kanban columns */}
       <div className="flex gap-4">
         {/* Job listings sidebar */}
-        <JobListingSidebar resumes={resumes} onApply={handleApplyFromListing} />
+        <JobListingSidebar 
+          resumes={resumes} 
+          onApply={handleApplyFromListing}
+          onNavigateToKeywords={onNavigateToKeywords}
+        />
 
         {/* Kanban columns */}
         <div className="flex-1 grid grid-cols-5 gap-4 min-w-0">
