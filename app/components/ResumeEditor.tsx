@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 
 // ─── Shared type (imported by KeywordAnalysis) ──────────────────────────────
@@ -326,6 +326,56 @@ function Section({
   );
 }
 
+// ─── Resume text builder (for live keyword matching) ─────────────────────────
+
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[!"'$(),\-/:;<=>?@\[\]\\^_`{|}~]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function buildEditorResumeText(data: ResumeData): string {
+  const parts: string[] = [];
+
+  if (data.contact) {
+    parts.push(data.contact.name, data.contact.email);
+  }
+
+  for (const edu of data.education) {
+    parts.push(edu.school, edu.degree, edu.location);
+    for (const c of edu.courses) {
+      parts.push(c.name);
+    }
+  }
+
+  for (const exp of data.experience) {
+    parts.push(exp.jobTitle, exp.companyName, exp.location);
+    for (const b of exp.bullets) {
+      parts.push(b.content);
+    }
+  }
+
+  for (const proj of data.projects) {
+    parts.push(proj.projectTitle, proj.github);
+    for (const b of proj.bullets) {
+      parts.push(b.content);
+    }
+  }
+
+  if (data.skills) {
+    for (const cat of data.skills.categories) {
+      parts.push(cat.name);
+      for (const item of cat.items) {
+        parts.push(item.name);
+      }
+    }
+  }
+
+  return normalizeText(parts.join(" "));
+}
+
 // ─── Main component ──────────────────────────────────────────────────────────
 
 interface ResumeEditorProps {
@@ -341,6 +391,16 @@ export default function ResumeEditor({ resumeId, keywords }: ResumeEditorProps) 
   const [saveStatus, setSaveStatus] = useState<"idle" | "saved" | "error">(
     "idle"
   );
+
+  // ── Live missing-keyword computation ───────────────────────────────────────
+
+  const missingKeywords = useMemo(() => {
+    if (!data || keywords.length === 0) return [];
+    const resumeText = buildEditorResumeText(data);
+    return keywords.filter(
+      (kw) => !resumeText.includes(normalizeText(kw.keyword))
+    );
+  }, [data, keywords]);
 
   // ── Load resume whenever ID changes ────────────────────────────────────────
 
@@ -615,9 +675,9 @@ export default function ResumeEditor({ resumeId, keywords }: ResumeEditorProps) 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-clip flex flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-4 px-6 py-3 border-b border-zinc-100 bg-zinc-50">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-4 px-6 py-3 border-b border-zinc-100 bg-zinc-50">
         <div className="flex-1 min-w-0">
           <input
             type="text"
@@ -681,8 +741,33 @@ export default function ResumeEditor({ resumeId, keywords }: ResumeEditorProps) 
         </div>
       </div>
 
+      {/* Missing keywords banner */}
+      {missingKeywords.length > 0 && (
+        <div className="sticky top-[53px] z-10 border-b border-red-100 bg-red-50 px-6 py-3">
+          <p className="text-xs font-semibold text-red-700 uppercase tracking-wider mb-1.5">
+            Missing Keywords ({missingKeywords.length})
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {missingKeywords.map((kw, i) => (
+              <span
+                key={i}
+                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                  kw.importance === "High"
+                    ? "bg-red-100 text-red-800 ring-1 ring-red-300"
+                    : kw.importance === "Medium"
+                      ? "bg-yellow-100 text-yellow-800 ring-1 ring-yellow-300"
+                      : "bg-zinc-100 text-zinc-700 ring-1 ring-zinc-300"
+                }`}
+              >
+                {kw.keyword}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Document body */}
-      <div className="p-6 space-y-6 overflow-y-auto text-sm text-zinc-800">
+      <div className="p-6 space-y-6 text-sm text-zinc-800">
         {/* ── Contact ────────────────────────────────────────────────────────── */}
         <Section title="Contact">
           <div className="grid grid-cols-2 gap-x-6 gap-y-2">
