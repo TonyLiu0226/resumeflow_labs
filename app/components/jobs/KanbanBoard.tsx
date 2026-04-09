@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { Job, JobStatus, JOB_STATUSES, STATUS_CONFIG } from "../../types/job";
+import { Job, JobListing, JobStatus, JOB_STATUSES, STATUS_CONFIG } from "../../types/job";
 import JobCard from "./JobCard";
 import JobDetails from "./JobDetails";
+import JobListingSidebar from "./JobListingSidebar";
 
 interface ResumeSummary {
   id: string;
@@ -179,6 +180,39 @@ export default function KanbanBoard({ resumes }: KanbanBoardProps) {
     }
   }
 
+  // ── Apply from listing ─────────────────────────────────────────────────────
+
+  async function handleApplyFromListing(
+    listing: JobListing,
+    resumeId: string,
+    resumeName: string
+  ) {
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    try {
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          company: listing.company,
+          jobTitle: listing.jobTitle,
+          description: listing.description,
+          resumeId,
+          resumeName,
+          dateApplied: new Date().toISOString(),
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create job");
+      const newJob = await res.json();
+      setJobs((prev) => [newJob, ...prev]);
+    } catch (error) {
+      console.error("Error applying from listing:", error);
+      throw error;
+    }
+  }
+
   // ── Loading state ───────────────────────────────────────────────────────────
 
   if (isLoading) {
@@ -236,61 +270,67 @@ export default function KanbanBoard({ resumes }: KanbanBoardProps) {
         </div>
       </div>
 
-      {/* Kanban columns */}
-      <div className="grid grid-cols-5 gap-4">
-        {JOB_STATUSES.map((status) => {
-          const config = STATUS_CONFIG[status];
-          const columnJobs = getJobsByStatus(status);
-          const isDragOver = dragOverColumn === status;
+      {/* Sidebar + Kanban columns */}
+      <div className="flex gap-4">
+        {/* Job listings sidebar */}
+        <JobListingSidebar resumes={resumes} onApply={handleApplyFromListing} />
 
-          return (
-            <div
-              key={status}
-              onDragOver={(e) => handleDragOver(e, status)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, status)}
-              className={`flex flex-col rounded-xl border-2 transition-colors min-h-[400px] ${
-                isDragOver
-                  ? `${config.borderColor} ${config.bgColor}`
-                  : "border-zinc-200 bg-zinc-50/50"
-              }`}
-            >
-              {/* Column header */}
-              <div className={`px-3 py-2.5 rounded-t-[10px] ${config.headerBg}`}>
-                <div className="flex items-center justify-between">
-                  <h3 className={`text-sm font-semibold ${config.color}`}>
-                    {config.label}
-                  </h3>
-                  <span
-                    className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${config.color} ${config.bgColor}`}
-                  >
-                    {columnJobs.length}
-                  </span>
+        {/* Kanban columns */}
+        <div className="flex-1 grid grid-cols-5 gap-4 min-w-0">
+          {JOB_STATUSES.map((status) => {
+            const config = STATUS_CONFIG[status];
+            const columnJobs = getJobsByStatus(status);
+            const isDragOver = dragOverColumn === status;
+
+            return (
+              <div
+                key={status}
+                onDragOver={(e) => handleDragOver(e, status)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, status)}
+                className={`flex flex-col rounded-xl border-2 transition-colors min-h-[400px] ${
+                  isDragOver
+                    ? `${config.borderColor} ${config.bgColor}`
+                    : "border-zinc-200 bg-zinc-50/50"
+                }`}
+              >
+                {/* Column header */}
+                <div className={`px-3 py-2.5 rounded-t-[10px] ${config.headerBg}`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className={`text-sm font-semibold ${config.color}`}>
+                      {config.label}
+                    </h3>
+                    <span
+                      className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ${config.color} ${config.bgColor}`}
+                    >
+                      {columnJobs.length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Cards */}
+                <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+                  {columnJobs.map((job) => (
+                    <div key={job.id} onDragEnd={handleDragEnd}>
+                      <JobCard
+                        job={job}
+                        onClickCard={setSelectedJob}
+                        onDelete={handleDeleteJob}
+                        onDragStart={handleDragStart}
+                      />
+                    </div>
+                  ))}
+
+                  {columnJobs.length === 0 && (
+                    <div className="flex items-center justify-center h-24 text-xs text-zinc-400">
+                      Drop jobs here
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {/* Cards */}
-              <div className="flex-1 p-2 space-y-2 overflow-y-auto">
-                {columnJobs.map((job) => (
-                  <div key={job.id} onDragEnd={handleDragEnd}>
-                    <JobCard
-                      job={job}
-                      onClickCard={setSelectedJob}
-                      onDelete={handleDeleteJob}
-                      onDragStart={handleDragStart}
-                    />
-                  </div>
-                ))}
-
-                {columnJobs.length === 0 && (
-                  <div className="flex items-center justify-center h-24 text-xs text-zinc-400">
-                    Drop jobs here
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Job details modal */}

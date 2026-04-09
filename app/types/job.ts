@@ -1,5 +1,15 @@
 export type JobStatus = "Applied" | "OA" | "Interviewing" | "Offered" | "Rejected";
 
+export interface JobListing {
+  id: string;
+  company: string;
+  jobTitle: string;
+  location: string;
+  description: string;
+  applyUrl: string;
+  postedDate: string;
+}
+
 export interface Job {
   id: string;
   company: string;
