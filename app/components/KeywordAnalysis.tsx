@@ -224,7 +224,8 @@ export default function KeywordAnalysis({
         parsed.keywords?.technical_skills ?? [];
 
       if (extractedKeywords.length === 0) {
-        throw new Error("No keywords were extracted from the job description.");
+        setError("No keywords were extracted from the job description.");
+        return;
       }
 
       // 2. Load the selected resume
