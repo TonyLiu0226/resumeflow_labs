@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { JobListing } from "../../types/job";
+import { tailorResumeAction } from "../../server/tailorAction";
 
 interface ResumeSummary {
   id: string;
@@ -26,6 +27,9 @@ export default function JobListingDetails({
   const defaultResumeId = resumes.length > 0 ? resumes[0].id : "";
   const [selectedResumeId, setSelectedResumeId] = useState(defaultResumeId);
   const [isApplying, setIsApplying] = useState(false);
+  const [isTailoring, startTailoring] = useTransition();
+  const [tailorResult, setTailorResult] = useState<string | null>(null);
+  const [tailorError, setTailorError] = useState(false);
 
   async function handleApply() {
     setIsApplying(true);
@@ -49,6 +53,22 @@ export default function JobListingDetails({
     if (!selectedResumeId || resumes.length === 0) return;
     onNavigateToKeywords(selectedResumeId, listing.description);
     onClose();
+  }
+
+  function handleAutoTailor() {
+    if (!selectedResumeId || resumes.length === 0) return;
+    setTailorResult(null);
+    setTailorError(false);
+    startTailoring(async () => {
+      try {
+        const result = await tailorResumeAction(listing, selectedResumeId);
+        setTailorResult(result);
+      } catch (error) {
+        console.error("Error tailoring resume:", error);
+        setTailorError(true);
+        setTailorResult("Error occurred while tailoring the resume.");
+      }
+    });
   }
 
   return (
@@ -136,6 +156,18 @@ export default function JobListingDetails({
               </p>
             )}
           </div>
+
+          {/* Tailor Result */}
+          {tailorResult && (
+            <div className={`p-4 ${
+              tailorError 
+                ? "bg-red-50 text-red-900 border-red-200"
+                : "bg-green-50 text-green-900 border-green-200"
+            } rounded-lg text-sm whitespace-pre-wrap border `}>
+              <h4 className="font-semibold mb-2">Tailoring Result:</h4>
+              {tailorResult}
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -148,6 +180,14 @@ export default function JobListingDetails({
             Close
           </button>
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleAutoTailor}
+              disabled={isTailoring || resumes.length === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-60 transition-colors"
+            >
+              {isTailoring ? "Tailoring..." : "Auto Tailor"}
+            </button>
             <button
               type="button"
               onClick={handleAnalyzeKeywords}

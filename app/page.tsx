@@ -142,15 +142,14 @@ export default function Home() {
           <div>
             <Link href="/" className="inline-flex">
               <Image
-                src="/logo.png"
+                src="/jakeify.png"
                 alt="JakeiFY"
-                width={220}
-                height={55}
+                width={300}
+                height={80}
                 className="h-10 w-auto"
                 priority
               />
             </Link>
-            <p className="text-xs text-zinc-400">Dashboard</p>
           </div>
           {session?.user && (
             <div className="flex items-center gap-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -41,7 +42,16 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-zinc-900">ResumeFlow Labs</h1>
+          <Link href="/" className="inline-flex justify-center">
+            <Image
+              src="/jakeify.png"
+              alt="JakeiFY"
+              width={600}
+              height={200}
+              className="h-12 w-auto"
+              priority
+            />
+          </Link>
           <p className="text-sm text-zinc-500 mt-1">Sign in to your account</p>
         </div>
 

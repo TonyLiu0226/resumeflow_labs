@@ -11,7 +11,7 @@ export const MAX_BULLETS_PER_PROJECT = 10;
 export const MAX_EDUCATIONS = 5;
 export const MAX_COURSES_PER_EDUCATION = 50;
 
-export const PROJECT_BULLET_GENERATOR_PROMPT=`You are a resume recruiter critiquing and fine-tuning resume bullet points. For the bullet point provided, please reformat it in a way such that it highlights the impact and achievement of the work done, rather than sounding like a chore or job description. Bullet points should be formatted as such:
+export const PROJECT_BULLET_GENERATOR_PROMPT = `You are a resume recruiter critiquing and fine-tuning resume bullet points. For the bullet point provided, please reformat it in a way such that it highlights the impact and achievement of the work done, rather than sounding like a chore or job description. Bullet points should be formatted as such:
 
 
 Accomplished X as measured by Y by doing Z
@@ -35,7 +35,7 @@ Accomplished X using Y to implement the project feature/goal Z
 
 Please only output the suggested bullet point in plaintext. No other text or formatting.`
 
-export const RESUME_BULLET_GENERATOR_PROMPT=`You are a resume recruiter critiquing and fine-tuning resume bullet points. For the bullet point provided, please reformat it in a way such that it highlights the impact and achievement of the work done, rather than sounding like a chore or job description. Bullet points should be formatted as such:
+export const RESUME_BULLET_GENERATOR_PROMPT = `You are a resume recruiter critiquing and fine-tuning resume bullet points. For the bullet point provided, please reformat it in a way such that it highlights the impact and achievement of the work done, rather than sounding like a chore or job description. Bullet points should be formatted as such:
 
 
 Accomplished X as measured by Y by doing Z
@@ -55,7 +55,7 @@ Did X using Y to accomplish Z
 
 Please only output the suggested bullet point in plaintext. No other text or formatting.`
 
-export const KEYWORD_TAILORING_PROMPT=`You are an information extraction engine specialized in analyzing job descriptions.
+export const KEYWORD_TAILORING_PROMPT = `You are an information extraction engine specialized in analyzing job descriptions.
 
 Your task is to read a provided job description and extract the most important keywords related to candidate qualifications, with a strong focus on skills that should be prioritized when evaluating or tailoring a job application.
 

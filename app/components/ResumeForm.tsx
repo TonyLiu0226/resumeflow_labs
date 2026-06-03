@@ -441,14 +441,13 @@ export default function ResumeForm({ resumeId: initialResumeId }: ResumeFormProp
         <div className="px-6 flex items-center justify-between py-3">
           <Link href="/" className="group">
             <Image
-              src="/logo.png"
+              src="/jakeify.png"
               alt="JakeiFY"
-              width={220}
-              height={55}
+              width={300}
+              height={80}
               className="h-10 w-auto"
               priority
             />
-            <p className="text-xs text-zinc-400">Resume Builder</p>
           </Link>
           <div className="flex items-center gap-4">
             {session?.user && (

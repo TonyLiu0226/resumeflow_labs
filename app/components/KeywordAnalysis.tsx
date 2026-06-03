@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ResumeEditor, { type KeywordResult } from "./ResumeEditor";
+import { analyzeKeywords } from "../server/keywordsAction";
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 
@@ -198,16 +199,14 @@ export default function KeywordAnalysis({
 
     try {
       // 1. Extract keywords from job description
-      const kwRes = await fetch("/api/keywords", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job: jobDescription }),
-      });
-      if (!kwRes.ok) throw new Error("Failed to extract keywords");
-      const kwData = await kwRes.json();
+      let raw: string;
+      try {
+        raw = await analyzeKeywords(jobDescription);
+      } catch (err: any) {
+        throw new Error(err.message || "Failed to extract keywords");
+      }
 
       // Parse the LLM JSON response (may be wrapped in markdown fences)
-      let raw: string = kwData.result ?? "";
       raw = raw.replace(/```json\s*/gi, "").replace(/```/g, "").trim();
       let parsed: {
         job_title?: string;
