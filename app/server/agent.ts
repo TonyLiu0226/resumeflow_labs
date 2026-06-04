@@ -135,6 +135,68 @@ const save_tailored_resume = tool(
     }
 );
 
+const get_resume = tool(
+    async ({resumeId}) => {
+        const resumeRecord = await prisma.resume.findUnique({
+            where: { id: resumeId },
+            include: {
+              contact: true,
+              education: { include: { courses: true } },
+              experience: { include: { bullets: true } },
+              projects: { include: { bullets: true } },
+              skills: { include: { categories: { include: { items: true } } } },
+            },
+        });
+
+        if (!resumeRecord) {
+            return null;
+        }
+
+        const { id, userId, ...resumeData } = resumeRecord;
+
+        return {
+            name: resumeData.name,
+            contact: {
+                email: resumeData.contact?.email || "",
+                phone: resumeData.contact?.phone || "",
+                linkedin: resumeData.contact?.linkedin || "",
+            },
+            education: resumeData.education.map((edu) => ({
+                id: edu.id,
+                degree: edu.degree,
+                school: edu.school,
+                location: edu.location,
+                date: edu.dateAchieved,
+                courses: edu.courses.map((course) => ({ name: course.name }))
+            })),
+            experience: resumeData.experience.map((exp) => ({
+                id: exp.id,
+                company: exp.companyName,
+                role: exp.jobTitle,
+                location: exp.location,
+                startDate: exp.startDate,
+                endDate: exp.endDate,
+                bullets: exp.bullets.map((bullet) => ({ text: bullet.content }))
+            })),
+            projects: resumeData.projects.map((proj) => ({
+                id: proj.id,
+                name: proj.projectTitle,
+                bullets: proj.bullets.map((bullet) => ({ text: bullet.content }))
+            })),
+            skills: resumeData?.skills?.categories?.map((category) => ({
+                category: category.name,
+                items: category.items.map((item) => ({ name: item.name }))
+            })) || []
+        }
+    }, {
+        name: "get_resume",
+        description: "Get the resume by ID.",
+        schema: z.object({
+            resumeId: z.string().describe("The ID of the resume to get."),
+        }),
+    }
+);
+
 const identify_keywords = tool(
     async ({ resumeId, jobDescription }) => {
         let resumeStr = "RESUME NOT FOUND";
@@ -211,6 +273,87 @@ Follow these steps for every request:
 4. Once the resume is perfectly tailored, use the 'save_tailored_resume' tool to save the tailored resume to the database. You MUST pass the companyName and jobTitle arguments to this tool.
 5. Provide the user with a summary of the changes made, the identified keywords from your analysis, and the NEW resume ID returned by the tool (format it exactly like this: \`NEW_RESUME_ID: <id>\`).
 6. If a tool results in a CRITICAL FATAL ERROR, please stop execution immediately and reply to the user with the error message.
+
+Complete all of these steps in a single workflow.`,
+});
+
+export const coverLetterAgent = createAgent({
+    model: new ChatGroq({
+        model: "llama-3.3-70b-versatile",
+        temperature: 0.4,
+        maxTokens: 6000,
+    }),
+    tools: [identify_keywords, get_resume],
+    systemPrompt: `You are an expert AI career coach tailored towards building great cover letters for candidates applying to roles they are passionate about.
+Your task is to generate tailored, engaging, and truthful cover letters based on:
+1. The user's target job description.
+2. The user's resume retrieved from the database.
+
+Follow these steps for every request:
+1. The user will provide their resume and target job description in the message
+2. Call the identify_keywords tool to identify important keywords from the job description.
+3. Call the get_resume tool to get the user's resume from the database and extract important information such as education, experience, and projects.
+4. Extract only factual information from the resume, including:
+   - Candidate name
+   - Phone number
+   - Email
+   - Education
+   - Work experience
+   - Projects
+   - Technical skills
+   - Achievements
+5. Generate a tailored cover letter that connects the candidate's real background to the job description.
+
+IMPORTANT COVER LETTER GUIDELINES:
+- Do not invent, exaggerate, or assume experience, education, projects, tools, companies, metrics, or achievements.
+- Do not include anything that is not supported by the retrieved resume.
+- Do not copy resume bullets or sentences directly.
+- Do not simply restate the resume in paragraph form.
+- Do not use generic filler language.
+- Do not use the phrase: "I am writing to express my interest in the [Job Title] position at [Company Name]".
+- Do not mention internal tool usage, keyword extraction, or the resume database.
+- If required information is missing from the resume, omit it gracefully rather than inventing it.
+- If the company name or job title is unclear from the job description use a neutral phrasing.
+
+Cover letter structure:
+1. Header:
+   - Candidate name
+   - Phone number
+   - Email
+
+2. To section:
+   - Company Name
+   - Company Address, if known
+   - Dear Hiring Manager,
+
+3. Body:
+   - One engaging introduction paragraph.
+   - One to two body paragraphs connecting the candidate's real experience, projects, and skills to the job description.
+   - One conclusion paragraph with a confident but professional closing.
+
+4. Closing:
+    - \nThank You, \n\n
+    [Candidate Full Name]
+
+Writing guidelines:
+- Make the opening specific and engaging.
+- Highlight the majority of important keywords from the job description naturally.
+- Prioritize the most relevant resume experiences over less relevant ones.
+- Emphasize impact, technical fit, product thinking, collaboration, and learning ability where supported by the resume.
+- Use confident, concise, professional language.
+- Vary sentence structure so the letter does not sound templated.
+- Keep the letter between 250 and 400 words unless the user requests otherwise.
+- Tailor the tone to the company and role:
+  - For startups: energetic, ownership-focused, product-minded.
+  - For large tech companies: scalable systems, collaboration, technical depth.
+  - For research or AI roles: experimentation, model/tooling experience, analytical thinking.
+  - For frontend roles: user experience, component quality, performance, accessibility.
+  - For backend roles: reliability, APIs, databases, distributed systems, infrastructure.
+  - For full-stack roles: end-to-end ownership and cross-functional delivery.
+
+Output requirements:
+- Output only the final cover letter.
+- Do not include explanations, notes, keyword lists, or analysis.
 
 Complete all of these steps in a single workflow.`,
 });

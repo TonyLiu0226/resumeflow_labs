@@ -3,7 +3,9 @@
 import { useState, useTransition } from "react";
 import { JobListing } from "../../types/job";
 import { tailorResumeAction } from "../../server/tailorAction";
+import { generateCoverLetterAction } from "../../server/coverLetterAction";
 import ResumeEditor from "../ResumeEditor";
+import CoverLetterEditor from "../CoverLetterEditor";
 
 interface ResumeSummary {
   id: string;
@@ -31,6 +33,9 @@ export default function JobListingDetails({
   const [isTailoring, startTailoring] = useTransition();
   const [tailorResult, setTailorResult] = useState<{ newResumeId: string | null; message: string } | null>(null);
   const [tailorError, setTailorError] = useState(false);
+  const [isGeneratingCoverLetter, startGeneratingCoverLetter] = useTransition();
+  const [coverLetterResult, setCoverLetterResult] = useState<string | null>(null);
+  const [coverLetterError, setCoverLetterError] = useState(false);
 
   async function handleApply() {
     setIsApplying(true);
@@ -72,6 +77,22 @@ export default function JobListingDetails({
     });
   }
 
+  function handleGenerateCoverLetter() {
+    if (!selectedResumeId || resumes.length === 0) return;
+    setCoverLetterResult(null);
+    setCoverLetterError(false);
+    startGeneratingCoverLetter(async () => {
+      try {
+        const result = await generateCoverLetterAction(listing, selectedResumeId);
+        setCoverLetterResult(result.message);
+      } catch (error) {
+        console.error("Error generating cover letter:", error);
+        setCoverLetterError(true);
+        setCoverLetterResult("Error occurred while generating the cover letter.");
+      }
+    });
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
@@ -100,7 +121,11 @@ export default function JobListingDetails({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
-          {tailorResult?.newResumeId ? (
+          {coverLetterResult && !coverLetterError ? (
+            <div className="h-full min-h-[500px]">
+              <CoverLetterEditor content={coverLetterResult} />
+            </div>
+          ) : tailorResult?.newResumeId ? (
             <div className="h-full min-h-[500px]">
               <ResumeEditor resumeId={tailorResult.newResumeId} keywords={[]} />
             </div>
@@ -175,6 +200,14 @@ export default function JobListingDetails({
                   {tailorResult.message || tailorResult}
                 </div>
               )}
+
+              {/* Cover Letter Error */}
+              {coverLetterError && coverLetterResult && (
+                <div className="p-4 bg-red-50 text-red-900 border-red-200 rounded-lg text-sm whitespace-pre-wrap border">
+                  <h4 className="font-semibold mb-2">Generation Error:</h4>
+                  {coverLetterResult}
+                </div>
+              )}
             </>
           )}
         </div>
@@ -189,8 +222,16 @@ export default function JobListingDetails({
             Close
           </button>
           
-          {!tailorResult?.newResumeId && (
+          {!tailorResult?.newResumeId && (!coverLetterResult || coverLetterError) && (
             <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleGenerateCoverLetter}
+                disabled={isGeneratingCoverLetter || resumes.length === 0}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 disabled:opacity-60 transition-colors"
+              >
+                {isGeneratingCoverLetter ? "Generating..." : "Cover Letter"}
+              </button>
               <button
                 type="button"
                 onClick={handleAutoTailor}
