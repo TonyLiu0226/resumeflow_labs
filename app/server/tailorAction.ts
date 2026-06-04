@@ -23,8 +23,7 @@ export async function tailorResumeAction(listing: JobListing, resumeId: string) 
 
   const resumeContent = JSON.stringify(resume, null, 2);
 
-  // Invoke agent
-  const result = await resumeTailorAgent.invoke(
+    const result = await resumeTailorAgent.invoke(
     {
       messages: [
         {
@@ -33,8 +32,14 @@ export async function tailorResumeAction(listing: JobListing, resumeId: string) 
         },
       ],
     },
-    { recursionLimit: 3 }
+    { recursionLimit: 10 }
   );
 
-  return result.messages[result.messages.length - 1].content;
+  const content = result.messages[result.messages.length - 1].content;
+  const match = content.match(/NEW_RESUME_ID:\s*([A-Za-z0-9-]+)/);
+  
+  return {
+    message: content,
+    newResumeId: match ? match[1] : null,
+  };
 }

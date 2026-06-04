@@ -738,6 +738,17 @@ export default function ResumeEditor({ resumeId, keywords }: ResumeEditorProps) 
               "Save Resume"
             )}
           </button>
+           <a
+                  href={data?.id ? `/api/resume/download?id=${data.id}` : "#"}
+                  onClick={(e) => {
+                    if (!data?.id) e.preventDefault();
+                  }}
+                  className={`w-full flex items-center justify-center px-5 py-2 text-white text-sm font-medium rounded-lg transition-colors ${
+                    data?.id ? "bg-zinc-900 hover:bg-zinc-700" : "bg-zinc-400 cursor-not-allowed"
+                  }`}
+                >
+                  Download PDF
+                </a>
         </div>
       </div>
 
