@@ -6,6 +6,7 @@ import { tailorResumeAction } from "../../server/tailorAction";
 import { generateCoverLetterAction } from "../../server/coverLetterAction";
 import ResumeEditor from "../ResumeEditor";
 import CoverLetterEditor from "../CoverLetterEditor";
+import { GENERATING_VIDEO } from "@/app/constants/constants";
 
 interface ResumeSummary {
   id: string;
@@ -154,10 +155,24 @@ export default function JobListingDetails({
               {/* Job Description */}
               <div>
                 <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5">
-                  Job Description
+                  {isTailoring || isGeneratingCoverLetter ? "Generating..." : "Job Description"}
                 </h4>
                 <div className="text-sm text-zinc-700 whitespace-pre-wrap bg-zinc-50 rounded-lg p-4 border border-zinc-100 max-h-72 overflow-y-auto">
-                  {listing.description}
+                  {isTailoring || isGeneratingCoverLetter ? (
+                    <div className="aspect-video w-full rounded-lg overflow-hidden">
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={GENERATING_VIDEO}
+                        title="Generating..."
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    listing.description
+                  )}
                 </div>
               </div>
 
@@ -222,7 +237,7 @@ export default function JobListingDetails({
             Close
           </button>
           
-          {!tailorResult?.newResumeId && (!coverLetterResult || coverLetterError) && (
+          {!tailorResult?.newResumeId && (!coverLetterResult || coverLetterError) ? (
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -269,6 +284,29 @@ export default function JobListingDetails({
                   "Apply Now"
                 )}
               </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {coverLetterResult && !coverLetterError && (
+                <button
+                  type="button"
+                  onClick={handleGenerateCoverLetter}
+                  disabled={isGeneratingCoverLetter}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 disabled:opacity-60 transition-colors"
+                >
+                  {isGeneratingCoverLetter ? "Generating..." : "Regenerate Cover Letter"}
+                </button>
+              )}
+              {tailorResult?.newResumeId && (
+                <button
+                  type="button"
+                  onClick={handleAutoTailor}
+                  disabled={isTailoring}
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 disabled:opacity-60 transition-colors"
+                >
+                  {isTailoring ? "Tailoring..." : "Regenerate Resume"}
+                </button>
+              )}
             </div>
           )}
         </div>

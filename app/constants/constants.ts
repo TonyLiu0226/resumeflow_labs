@@ -96,3 +96,5 @@ Output format:
     "keyword3"
   ]
 }`
+
+export const GENERATING_VIDEO="https://www.youtube.com/embed/dujq-joDf5g?autoplay=1"

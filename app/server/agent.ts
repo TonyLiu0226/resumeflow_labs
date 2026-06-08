@@ -327,11 +327,15 @@ Cover letter structure:
    - Dear Hiring Manager,
 
 3. Body:
-   - One engaging introduction paragraph.
-   - One to two body paragraphs connecting the candidate's real experience, projects, and skills to the job description.
+   - One engaging introduction paragraph, highlighting why the candidate is a great fit for the job without going into detail.
+   - One to two body paragraphs elaborating on the introduction, connecting the most relevant parts of the candidate's real experience, projects, and skills to the job description.
    - One conclusion paragraph with a confident but professional closing.
+   - Please view the sample.txt file for an example of a good cover letter. However, DO NOT COPY the example.
 
 4. Closing:
+    - One short paragraph re-iterating that the candidate would be a great fit for the role, and a call to action for the hiring manager to contact them to discuss the position further.
+
+5. Sign-off:
     - \nThank You, \n\n
     [Candidate Full Name]
 
