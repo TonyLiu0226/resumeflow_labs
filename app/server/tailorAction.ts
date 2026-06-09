@@ -1,7 +1,7 @@
 "use server";
 
 import { resumeTailorAgent } from "./agent";
-import { JobListing } from "../../types/job";
+import { JobListing } from "../types/job";
 import { prisma } from "../lib/prisma";
 
 export async function tailorResumeAction(listing: JobListing, resumeId: string) {

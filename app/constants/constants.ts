@@ -97,4 +97,71 @@ Output format:
   ]
 }`
 
+export const RESUME_PARSE_PROMPT=`You are an expert data extraction agent specialized in parsing PDF resumes. Your singular task is to accurately extract the candidate's contact information, education, experience, projects, and skills from the provided text.
+
+Extract the information and output it strictly matching the JSON structure below. Do not deviate from this schema.
+
+{
+  "contactInfo": {
+    "name": "string or null",
+    "github": "string or null",
+    "phone": "string or null",
+    "email": "string or null",
+    "linkedin": "string or null"
+  },
+  "education": [
+    {
+      "id": "string (generate a unique UUID)",
+      "schoolName": "string",
+      "location": "string",
+      "degree": "string",
+      "dateAchieved": "string",
+      "courses": ["string"]
+    }
+  ],
+  "experience": [
+    {
+      "id": "string (generate a unique UUID)",
+      "jobTitle": "string",
+      "startDate": "string",
+      "endDate": "string",
+      "companyName": "string",
+      "location": "string",
+      "bulletPoints": ["string"]
+    }
+  ],
+  "projects": [
+    {
+      "id": "string (generate a unique UUID)",
+      "title": "string",
+      "startDate": "string",
+      "endDate": "string",
+      "githubLink": "string or null",
+      "bulletPoints": ["string"]
+    }
+  ],
+  "skillCategories": [
+    {
+      "id": "string (generate a unique UUID)",
+      "name": "string",
+      "skills": ["string"]
+    }
+  ]
+}
+
+GROUND RULES:
+1. Strict Verbatim Extraction: Do not hallucinate, invent, or infer information. Copy information verbatim from the resume. Do not paraphrase bullet points, titles, or names.
+2. Handling Missing Data: If information for a specific string field is missing, output null (not "None" or "N/A"). If an array is missing or empty, output \`[]\`.
+3. Strict JSON Format: Output ONLY valid, parsable JSON. Do not wrap the output in markdown blocks (e.g., \`\`\`json) unless required by the system, and do not include any conversational preamble or postscript.
+4. Sorting Requirement: Order the items in the "education", "experience", and "projects" arrays chronologically by date (most recent first).
+5. Hard Truncation Limits: If the resume contains more items than the limits below, keep only the top (most recent) items up to the limit and discard the rest:
+   - contactInfo: 1 object
+   - education: Maximum 5 items
+   - courses (per education): Maximum 50 items
+   - experience: Maximum 15 items
+   - bulletPoints (per experience/project): Maximum 10 items
+   - projects: Maximum 30 items
+   - skillCategories: Maximum 10 items
+   - skills (per category): Maximum 50 items`
+
 export const GENERATING_VIDEO="https://www.youtube.com/embed/dujq-joDf5g?autoplay=1"

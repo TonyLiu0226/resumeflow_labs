@@ -33,7 +33,9 @@ export default function Home() {
 
   const [resumes, setResumes] = useState<ResumeSummary[]>([]);
   const [showNewDialog, setShowNewDialog] = useState(false);
+  const [dialogTab, setDialogTab] = useState<"scratch" | "import" | null>(null);
   const [newResumeName, setNewResumeName] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -74,14 +76,18 @@ export default function Home() {
   }
 
   function openNewResumeDialog() {
+    setDialogTab("scratch");
     setNewResumeName("");
+    setSelectedFile(null);
     setCreateError(null);
     setShowNewDialog(true);
   }
 
   function closeNewResumeDialog() {
+    setDialogTab(null);
     setShowNewDialog(false);
     setNewResumeName("");
+    setSelectedFile(null);
     setCreateError(null);
   }
 
@@ -123,6 +129,90 @@ export default function Home() {
     } catch (error) {
       console.error("Create error:", error);
       setCreateError("Failed to create resume. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  }
+
+  async function handleImportResume(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmedName = newResumeName.trim();
+    if (!trimmedName) {
+      setCreateError("Please enter a resume name.");
+      return;
+    }
+    if (!selectedFile) {
+      setCreateError("Please select a PDF file.");
+      return;
+    }
+
+    if (!selectedFile.type.includes("pdf")) {
+      setCreateError("Please select a PDF file.");
+      return;
+    }
+
+    if (selectedFile.size > (1024 * 1024 * 20)) {
+      setCreateError("Please select a PDF file smaller than 20MB.");
+      return;
+    }
+
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    setIsCreating(true);
+    setCreateError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      const res = await fetch("/api/extract", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Failed to extract resume");
+      const data = await res.json();
+      console.log(data);
+      let parsedDataResponse = await fetch("/api/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeText: data.message }),
+      });
+      if (!parsedDataResponse.ok) throw new Error("Failed to parse resume");
+      
+      const parsedDataJSON = await parsedDataResponse.json();
+      console.log(parsedDataJSON);
+      let parsedResumeObj;
+      try {
+        const text = parsedDataJSON.resume.trim().replace(/^```[a-zA-Z]*\s*/i, "").replace(/```$/i, "").trim();
+        parsedResumeObj = JSON.parse(text);
+      } catch (err) {
+        console.error("Failed to parse JSON from agent:", parsedDataJSON.resume);
+        throw new Error("Failed to parse resume data correctly.");
+      }
+
+      const saveRes = await fetch("/api/resume/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          resumeId: crypto.randomBytes(16).toString("hex"),
+          name: trimmedName,  
+          contact: parsedResumeObj.contactInfo || { email: "", phone: "", github: "", linkedin: "" },
+          education: parsedResumeObj.education || [],
+          experience: parsedResumeObj.experience || [],  
+          projects: parsedResumeObj.projects || [],
+          skillCategories: parsedResumeObj.skillCategories || [],
+        }),
+      });
+
+      if (!saveRes.ok) throw new Error("Failed to create resume");
+
+      const { id } = await saveRes.json();
+      closeNewResumeDialog();
+      router.push(`/resume/${id}`);
+    } catch (error) {
+      console.error("Import error:", error);
+      setCreateError("Failed to parse and create resume. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -285,19 +375,58 @@ export default function Home() {
               Give your resume a name to get started.
             </p>
 
-            <form onSubmit={handleCreateResume}>
-              <label htmlFor="resume-name" className="block text-sm font-medium text-zinc-700 mb-1.5">
-                Resume Name
-              </label>
-              <input
-                ref={nameInputRef}
-                id="resume-name"
-                type="text"
-                value={newResumeName}
-                onChange={(e) => setNewResumeName(e.target.value)}
-                placeholder='e.g. "Software Engineer - Google"'
-                className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
+            <div className="flex mb-5 border-b border-zinc-700">
+              <button
+                type="button"
+                className={`flex-1 pb-2 text-sm font-medium transition-colors ${
+                  dialogTab === "scratch" ? "text-zinc-900 border-b-2 border-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+                }`}
+                onClick={() => setDialogTab("scratch")}
+              >
+                Start from scratch
+              </button>
+              <button
+                type="button"
+                className={`flex-1 pb-2 text-sm font-medium transition-colors ${
+                  dialogTab === "import" ? "text-zinc-900 border-b-2 border-zinc-900" : "text-zinc-500 hover:text-zinc-700"
+                }`}
+                onClick={() => setDialogTab("import")}
+              >
+                Import PDF
+              </button>
+            </div>
+
+            <form onSubmit={dialogTab === "scratch" ? handleCreateResume : handleImportResume}>
+              <div className="mb-4">
+                <label htmlFor="resume-name" className="block text-sm font-medium text-zinc-700 mb-1.5">
+                  Resume Name
+                </label>
+                <input
+                  ref={nameInputRef}
+                  id="resume-name"
+                  type="text"
+                  value={newResumeName}
+                  onChange={(e) => setNewResumeName(e.target.value)}
+                  placeholder='e.g. "Software Engineer - Google"'
+                  className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+
+              {dialogTab === "import" && (
+                <div className="mb-4">
+                  <label htmlFor="resume-pdf" className="block text-sm font-medium text-zinc-700 mb-1.5">
+                    Upload PDF
+                  </label>
+                  <input
+                    id="resume-pdf"
+                    type="file"
+                    accept=".pdf"
+                    required
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    className="w-full px-3 py-2 border border-zinc-300 rounded-lg text-sm text-zinc-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-zinc-100 file:text-zinc-700 hover:file:bg-zinc-200"
+                  />
+                </div>
+              )}
 
               {createError && (
                 <p className="mt-2 text-sm text-red-600">{createError}</p>

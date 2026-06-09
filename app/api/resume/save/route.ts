@@ -17,20 +17,20 @@ export async function POST(request: NextRequest) {
                 contact: {
                     delete: true,
                     create: {
-                      name: contact.name,
-                      email: contact.email,
-                      phone: contact.phone,
-                      github: contact.github,
-                      linkedin: contact.linkedin,
+                      name: contact.name || "",
+                      email: contact.email || "",
+                      phone: contact.phone || "",
+                      github: contact.github || "",
+                      linkedin: contact.linkedin || "",
                     },
                   },
                 education: {
                   deleteMany: {},
-                  create: education.map((e: ResumeEducation) => ({
-                    school: e.school,
-                    location: e.location,
-                    degree: e.degree,
-                    dateAchieved: e.dateAchieved,
+                  create: education.map((e: any) => ({
+                    school: e.school || e.schoolName || "",
+                    location: e.location || "",
+                    degree: e.degree || "",
+                    dateAchieved: e.dateAchieved || "",
                     courses: {
                       create: e.courses.map((c: string) => ({
                         name: c,
@@ -41,12 +41,12 @@ export async function POST(request: NextRequest) {
         
                 experience: {
                   deleteMany: {},
-                  create: experience.map((e: ResumeExperience) => ({
-                    jobTitle: e.jobTitle,
-                    companyName: e.companyName,
-                    location: e.location,
-                    startDate: e.startDate,
-                    endDate: e.endDate,
+                  create: experience.map((e: any) => ({
+                    jobTitle: e.jobTitle || "",
+                    companyName: e.companyName || "",
+                    location: e.location || "",
+                    startDate: e.startDate || "",
+                    endDate: e.endDate || "",
                     bullets: {
                       create: e.bulletPoints.map((b: string) => ({
                         content: b,
@@ -57,11 +57,11 @@ export async function POST(request: NextRequest) {
         
                 projects: {
                   deleteMany: {},
-                  create: projects.map((e: ResumeProject) => ({
-                    projectTitle: e.title,
-                    projectStart: e.startDate,
-                    projectEnd: e.endDate,
-                    github: e.githubLink,
+                  create: projects.map((e: any) => ({
+                    projectTitle: e.title || "",
+                    projectStart: e.startDate || "",
+                    projectEnd: e.endDate || "",
+                    github: e.githubLink || "",
                     bullets: {
                       create: e.bulletPoints.map((b: string) => ({
                         content: b,
@@ -102,11 +102,11 @@ export async function POST(request: NextRequest) {
                     },
                 },
                 education: {
-                    create: education.map((e: ResumeEducation) => ({
-                        school: e.school,
-                        location: e.location,
-                        degree: e.degree,
-                        dateAchieved: e.dateAchieved,
+                    create: education.map((e: any) => ({
+                        school: e.school || e.schoolName || "",
+                        location: e.location || "",
+                        degree: e.degree || "",
+                        dateAchieved: e.dateAchieved || "",
                         courses: {
                             create: e.courses.map((c: string) => ({
                                 name: c,
@@ -115,12 +115,12 @@ export async function POST(request: NextRequest) {
                     })),
                 },
                 experience: {
-                    create: experience.map((e: ResumeExperience) => ({
-                        jobTitle: e.jobTitle,
-                        companyName: e.companyName,
-                        location: e.location,
-                        startDate: e.startDate,
-                        endDate: e.endDate,
+                    create: experience.map((e: any) => ({
+                        jobTitle: e.jobTitle || "",
+                        companyName: e.companyName || "",
+                        location: e.location || "",
+                        startDate: e.startDate || "",
+                        endDate: e.endDate || "",
                         bullets: {
                             create: e.bulletPoints.map((b: string) => ({
                                 content: b,
@@ -129,11 +129,11 @@ export async function POST(request: NextRequest) {
                     })),
                 },
                 projects: {
-                    create: projects.map((e: ResumeProject) => ({
-                        projectTitle: e.title,
-                        projectStart: e.startDate,
-                        projectEnd: e.endDate,
-                        github: e.githubLink,
+                    create: projects.map((e: any) => ({
+                        projectTitle: e.title || "",
+                        projectStart: e.startDate || "",
+                        projectEnd: e.endDate || "",
+                        github: e.githubLink || "",
                         bullets: {
                             create: e.bulletPoints.map((b: string) => ({
                                 content: b,
