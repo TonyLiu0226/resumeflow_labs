@@ -150,12 +150,12 @@ Extract the information and output it strictly matching the JSON structure below
 }
 
 GROUND RULES:
-1. Strict Verbatim Extraction: Do not hallucinate, invent, or infer information. Copy information verbatim from the resume. Do not paraphrase bullet points, titles, or names.
-2. Handling Foreign Languages: If resume content is in a foreign language, do not translate it to English when filling out the JSON fields. Keep all bullet points verbatim.
-2. Handling Missing Data: If information for a specific string field is missing, output an empty string (NOT Null or "None" or "N/A" or "null"). DO NOT OUTPUT a null value, as the fields are strictly typed to only accept strings. If an array is missing or empty, output \`[]\`.
-3. Strict JSON Format: Output ONLY valid, parsable JSON. Do not wrap the output in markdown blocks (e.g., \`\`\`json) unless required by the system, and do not include any conversational preamble or postscript.
-4. Sorting Requirement: Order the items in the "education", "experience", and "projects" arrays chronologically by date (most recent first).
-5. Hard Truncation Limits: If the resume contains more items than the limits below, keep only the top (most recent) items up to the limit and discard the rest:
+1. Strict Verbatim Extraction: Do not hallucinate, invent, or infer information. Copy information verbatim from the resume. Do not paraphrase bullet points, titles, or names. **CRITICAL: You must preserve ALL foreign characters (e.g., Chinese characters 汉字) exactly as they appear. Do not omit them or replace them.**
+2. Handling Foreign Languages & Sections: If resume content is in a foreign language, DO NOT translate it to English. Keep all text in its original language. Map foreign section titles to the correct JSON fields (e.g., "专业技能" maps to skillCategories, "教育背景" maps to education, "过往经历" maps to experience, "项目" maps to projects). Ensure the skills section is fully extracted.
+3. Handling Missing Data: If information for a specific string field is missing, output an empty string (NOT Null or "None" or "N/A" or "null"). DO NOT OUTPUT a null value, as the fields are strictly typed to only accept strings. If an array is missing or empty, output \`[]\`.
+4. Strict JSON Format: Output ONLY valid, parsable JSON. Do not wrap the output in markdown blocks (e.g., \`\`\`json) unless required by the system, and do not include any conversational preamble or postscript.
+5. Sorting Requirement: Order the items in the "education", "experience", and "projects" arrays chronologically by date (most recent first).
+6. Hard Truncation Limits: If the resume contains more items than the limits below, keep only the top (most recent) items up to the limit and discard the rest:
    - contactInfo: 1 object
    - education: Maximum 5 items
    - courses (per education): Maximum 50 items
