@@ -183,7 +183,12 @@ export default function Home() {
       console.log(parsedDataJSON);
       let parsedResumeObj;
       try {
-        const text = parsedDataJSON.resume.trim().replace(/^```[a-zA-Z]*\s*/i, "").replace(/```$/i, "").trim();
+        let text = parsedDataJSON.resume.trim().replace(/^```[a-zA-Z]*\s*/i, "").replace(/```$/i, "").trim();
+        const startIndex = text.indexOf('{');
+        const endIndex = text.lastIndexOf('}');
+        if (startIndex !== -1 && endIndex !== -1) {
+          text = text.substring(startIndex, endIndex + 1);
+        }
         parsedResumeObj = JSON.parse(text);
       } catch (err) {
         console.error("Failed to parse JSON from agent:", parsedDataJSON.resume);

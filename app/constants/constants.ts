@@ -103,11 +103,11 @@ Extract the information and output it strictly matching the JSON structure below
 
 {
   "contactInfo": {
-    "name": "string or null",
-    "github": "string or null",
-    "phone": "string or null",
-    "email": "string or null",
-    "linkedin": "string or null"
+    "name": "string",
+    "github": "string",
+    "phone": "string",
+    "email": "string",
+    "linkedin": "string"
   },
   "education": [
     {
@@ -136,7 +136,7 @@ Extract the information and output it strictly matching the JSON structure below
       "title": "string",
       "startDate": "string",
       "endDate": "string",
-      "githubLink": "string or null",
+      "githubLink": "string",
       "bulletPoints": ["string"]
     }
   ],
@@ -151,7 +151,8 @@ Extract the information and output it strictly matching the JSON structure below
 
 GROUND RULES:
 1. Strict Verbatim Extraction: Do not hallucinate, invent, or infer information. Copy information verbatim from the resume. Do not paraphrase bullet points, titles, or names.
-2. Handling Missing Data: If information for a specific string field is missing, output null (not "None" or "N/A"). If an array is missing or empty, output \`[]\`.
+2. Handling Foreign Languages: If resume content is in a foreign language, do not translate it to English when filling out the JSON fields. Keep all bullet points verbatim.
+2. Handling Missing Data: If information for a specific string field is missing, output an empty string (NOT Null or "None" or "N/A" or "null"). DO NOT OUTPUT a null value, as the fields are strictly typed to only accept strings. If an array is missing or empty, output \`[]\`.
 3. Strict JSON Format: Output ONLY valid, parsable JSON. Do not wrap the output in markdown blocks (e.g., \`\`\`json) unless required by the system, and do not include any conversational preamble or postscript.
 4. Sorting Requirement: Order the items in the "education", "experience", and "projects" arrays chronologically by date (most recent first).
 5. Hard Truncation Limits: If the resume contains more items than the limits below, keep only the top (most recent) items up to the limit and discard the rest:
