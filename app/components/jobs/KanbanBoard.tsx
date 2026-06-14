@@ -28,13 +28,13 @@ export default function KanbanBoard({ resumes, onNavigateToKeywords }: KanbanBoa
 
   // ── Fetch jobs ──────────────────────────────────────────────────────────────
 
-  const fetchJobs = useCallback(async () => {
+  const fetchJobs = useCallback(async (location: string | null, datePosted: string | null) => {
     const userId = session?.user?.id;
     if (!userId) return;
 
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/jobs?userId=${userId}`);
+      const res = await fetch(`/api/jobs?userId=${userId}&location=${location}&datePosted=${datePosted}`);
       if (!res.ok) throw new Error("Failed to fetch jobs");
       const data = await res.json();
       setJobs(data);
@@ -46,7 +46,7 @@ export default function KanbanBoard({ resumes, onNavigateToKeywords }: KanbanBoa
   }, [session?.user?.id]);
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(null, null);
   }, [fetchJobs]);
 
   // ── Group jobs by status ────────────────────────────────────────────────────
@@ -124,7 +124,7 @@ export default function KanbanBoard({ resumes, onNavigateToKeywords }: KanbanBoa
       if (!res.ok) throw new Error("Failed to delete job");
     } catch (error) {
       console.error("Error deleting job:", error);
-      fetchJobs(); // Refetch on failure
+      fetchJobs(null, null); // Refetch on failure
     }
   }
 
@@ -148,7 +148,7 @@ export default function KanbanBoard({ resumes, onNavigateToKeywords }: KanbanBoa
       if (!res.ok) throw new Error("Failed to delete rejected jobs");
     } catch (error) {
       console.error("Error deleting rejected jobs:", error);
-      fetchJobs();
+      fetchJobs(null, null);
     }
   }
 

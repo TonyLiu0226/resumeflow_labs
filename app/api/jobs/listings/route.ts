@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const JOB_LISTINGS = [
   {
@@ -481,6 +481,16 @@ Nice to have:
   },
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const location = request.nextUrl.searchParams.get("location");
+  const datePosted = request.nextUrl.searchParams.get("datePosted");
+
+  if (location && datePosted) {
+    return NextResponse.json(JOB_LISTINGS.filter((job) => job.location.toLowerCase().includes(location.toLowerCase()) && new Date(job.postedDate) >= new Date(datePosted)));
+  } else if (location) {
+    return NextResponse.json(JOB_LISTINGS.filter((job) => job.location.toLowerCase().includes(location.toLowerCase())));
+  } else if (datePosted) {
+    return NextResponse.json(JOB_LISTINGS.filter((job) => new Date(job.postedDate) >= new Date(datePosted)));
+  }
   return NextResponse.json(JOB_LISTINGS);
 }
