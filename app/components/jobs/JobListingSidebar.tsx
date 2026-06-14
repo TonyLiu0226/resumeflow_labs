@@ -34,6 +34,7 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
       setIsLoading(true);
       try {
         const params = new URLSearchParams();
+        if (searchQuery) params.append("keywords", searchQuery);
         if (locationQuery) params.append("location", locationQuery);
         if (datePostedQuery) params.append("datePosted", datePostedQuery);
         
@@ -49,18 +50,11 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
     }
 
     fetchListings();
-  }, [locationQuery, datePostedQuery]);
+  }, [searchQuery, locationQuery, datePostedQuery]);
 
   const filteredListings = useMemo(() => {
-    if (!searchQuery.trim()) return listings;
-    const q = searchQuery.toLowerCase();
-    return listings.filter(
-      (l) =>
-        l.company.toLowerCase().includes(q) ||
-        l.jobTitle.toLowerCase().includes(q) ||
-        l.description.toLowerCase().includes(q)
-    );
-  }, [listings, searchQuery]);
+    return listings;
+  }, [listings]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -122,13 +116,18 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
           />
           </div>
           <div className="flex flex-col text-black text-xs">
-          <label htmlFor="date">Posted on or after:</label>
-          <input
-            type="date"
+          <label htmlFor="date">Posted:</label>
+          <select
+            id="date"
             value={datePostedInput}
             onChange={(e) => setDatePostedInput(e.target.value)}
-            className="flex-1 w-full px-2 py-1.5 border border-zinc-300 rounded-md text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
+            className="flex-1 w-full px-2 py-1.5 border border-zinc-300 rounded-md text-xs text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          >
+            <option value="">Any time</option>
+            <option value="r86400">Past 24 hours</option>
+            <option value="r604800">Past week</option>
+            <option value="r2592000">Past month</option>
+          </select>
           </div>
         </div>
         
