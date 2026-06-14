@@ -1,14 +1,15 @@
 "use client";
 
-import { Job, STATUS_CONFIG } from "../../types/job";
+import { Job, JobStatus, JOB_STATUSES, STATUS_CONFIG } from "../../types/job";
 
 interface JobDetailsProps {
   job: Job;
   onClose: () => void;
   onDelete: (id: string) => void;
+  onStatusChange?: (jobId: string, newStatus: JobStatus) => void;
 }
 
-export default function JobDetails({ job, onClose, onDelete }: JobDetailsProps) {
+export default function JobDetails({ job, onClose, onDelete, onStatusChange }: JobDetailsProps) {
   const config = STATUS_CONFIG[job.status];
 
   function handleDelete() {
@@ -46,11 +47,23 @@ export default function JobDetails({ job, onClose, onDelete }: JobDetailsProps) 
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Status + Date row */}
           <div className="flex items-center gap-3 flex-wrap">
-            <span
-              className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${config.color} ${config.bgColor}`}
+            <select
+              value={job.status}
+              onChange={(e) => onStatusChange?.(job.id, e.target.value as JobStatus)}
+              className={`inline-flex items-center pl-2.5 pr-7 py-1 rounded-md text-xs font-semibold appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 ${config.color} ${config.bgColor} border border-transparent hover:opacity-80 transition-opacity`}
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                backgroundPosition: 'right 0.25rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.25em 1.25em'
+              }}
             >
-              {config.label}
-            </span>
+              {JOB_STATUSES.map((status) => (
+                <option key={status} value={status} className="text-zinc-900 bg-white">
+                  {STATUS_CONFIG[status].label}
+                </option>
+              ))}
+            </select>
             <span className="text-sm text-zinc-500">
               Applied{" "}
               {new Date(job.dateApplied).toLocaleDateString("en-US", {
