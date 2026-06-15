@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { JobListing } from "../../types/job";
 import JobListingDetails from "./JobListingDetails";
 
@@ -20,6 +20,8 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
   const [isLoading, setIsLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<JobListing | null>(null);
   
+  const [currentPage, setCurrentPage] = useState(0);
+  
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   
@@ -29,19 +31,30 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
   const [datePostedInput, setDatePostedInput] = useState("");
   const [datePostedQuery, setDatePostedQuery] = useState("");
 
+  const pagesCache = useRef<Record<string, JobListing[]>>({});
+
   useEffect(() => {
     async function fetchListings() {
+      const cacheKey = `${searchQuery}|${locationQuery}|${datePostedQuery}|${currentPage}`;
+      
+      if (pagesCache.current[cacheKey]) {
+        setListings(pagesCache.current[cacheKey]);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const params = new URLSearchParams();
         if (searchQuery) params.append("keywords", searchQuery);
         if (locationQuery) params.append("location", locationQuery);
         if (datePostedQuery) params.append("datePosted", datePostedQuery);
+        params.append("pageNum", currentPage.toString());
         
         const res = await fetch(`/api/jobs/listings?${params.toString()}`);
         if (!res.ok) throw new Error("Failed to fetch listings");
         const data = await res.json();
         setListings(data);
+        pagesCache.current[cacheKey] = data;
       } catch (error) {
         console.error("Error fetching job listings:", error);
       } finally {
@@ -50,7 +63,7 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
     }
 
     fetchListings();
-  }, [searchQuery, locationQuery, datePostedQuery]);
+  }, [searchQuery, locationQuery, datePostedQuery, currentPage]);
 
   const filteredListings = useMemo(() => {
     return listings;
@@ -61,6 +74,7 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
     setSearchQuery(searchInput);
     setLocationQuery(locationInput);
     setDatePostedQuery(datePostedInput);
+    setCurrentPage(0);
   }
 
   function handleClearSearch() {
@@ -70,6 +84,15 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
     setLocationQuery("");
     setDatePostedInput("");
     setDatePostedQuery("");
+    setCurrentPage(0);
+  }
+
+  function handlePrevious() {
+    setCurrentPage(Math.max(0, currentPage - 10));
+  }
+
+  function handleNext() {
+    setCurrentPage(currentPage + 10);
   }
 
   return (
@@ -193,6 +216,14 @@ export default function JobListingSidebar({ resumes, onApply, onNavigateToKeywor
             ))}
           </ul>
         )}
+        <div className="flex flex-row justify-between p-4">
+            <button className="px-3 py-2 text-xs font-medium text-white bg-zinc-900 rounded-md hover:bg-zinc-700 transition-colors" onClick={handlePrevious} disabled={currentPage == 0}>
+              Previous
+            </button>
+            <button className="px-3 py-2 text-xs font-medium text-white bg-zinc-900 rounded-md hover:bg-zinc-700 transition-colors" onClick={handleNext} disabled={currentPage > 990 || filteredListings.length < 10}>
+              Next
+            </button>
+          </div>
       </div>
 
       {/* Listing details dialog */}

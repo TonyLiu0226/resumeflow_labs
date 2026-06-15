@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const keywordsParam = request.nextUrl.searchParams.get("keywords") || "";
     const pageNum = request.nextUrl.searchParams.get('pageNum') || '0';
 
-    if (Number(pageNum) > 975 || Number(pageNum) < 0) {
+    if (Number(pageNum) > 990 || Number(pageNum) < 0) {
       throw new Error('Page number is invalid')
     }
 
