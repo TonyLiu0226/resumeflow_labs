@@ -158,7 +158,7 @@ export default function JobListingDetails({
                 <h4 className="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-1.5">
                   {isTailoring || isGeneratingCoverLetter ? "Generating..." : "Job Description"}
                 </h4>
-                <div className="text-sm text-zinc-700 whitespace-pre-wrap bg-zinc-50 rounded-lg p-4 border border-zinc-100 max-h-72 overflow-y-auto">
+                <div className="text-sm text-zinc-700 bg-zinc-50 rounded-lg p-4 border border-zinc-100 max-h-72 overflow-y-auto [&_p]:mb-3 [&_ul]:list-disc [&_ul]:ml-5 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:ml-5 [&_ol]:mb-3 [&_li]:mb-1">
                   {isTailoring || isGeneratingCoverLetter ? (
                     <div className="aspect-video w-full rounded-lg overflow-hidden">
                       <iframe

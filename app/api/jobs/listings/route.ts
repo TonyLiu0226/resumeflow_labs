@@ -67,11 +67,14 @@ export async function GET(request: NextRequest) {
     await Promise.all(allJobs.map(async (job) => {
       if (!job.applyUrl) return;
       try {
-        const detailResponse = await axios.get(job.applyUrl);
+        const jobPostingId = job.applyUrl.split('/').pop();
+        console.log(job.applyUrl)
+        const detailResponse = await axios.get(`https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/${jobPostingId?.split('?')[0].slice(-10)}`);
         const detailData = cheerio.load(detailResponse.data);
-        // The server sends the full text in the raw HTML; the "Show More" button is just for the client-side UI!
-        const descriptionHtml = detailData('.show-more-less-html__markup').html();
-        job.description = descriptionHtml?.trim() || ''
+        // Remove all button elements from the HTML
+        detailData('button').remove();
+        const descriptionHtml = detailData('.show-more-less-html').html();
+        job.description = descriptionHtml?.trim() || '';
       } catch (err) {
         console.error(`Failed to fetch details for job: ${job.applyUrl}`, err);
         // If it fails, the description just remains empty
