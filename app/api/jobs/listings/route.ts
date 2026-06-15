@@ -62,6 +62,22 @@ export async function GET(request: NextRequest) {
         })
       })
     })
+
+    // Fetch the full job description for each listing concurrently
+    await Promise.all(allJobs.map(async (job) => {
+      if (!job.applyUrl) return;
+      try {
+        const detailResponse = await axios.get(job.applyUrl);
+        const detailData = cheerio.load(detailResponse.data);
+        // The server sends the full text in the raw HTML; the "Show More" button is just for the client-side UI!
+        const descriptionHtml = detailData('.show-more-less-html__markup').html();
+        job.description = descriptionHtml?.trim() || ''
+      } catch (err) {
+        console.error(`Failed to fetch details for job: ${job.applyUrl}`, err);
+        // If it fails, the description just remains empty
+      }
+    }));
+
     return NextResponse.json(allJobs);
   } catch (error) {
     console.error("Error fetching job listings:", error);

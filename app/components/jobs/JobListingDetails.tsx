@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { JobListing } from "../../types/job";
 import { tailorResumeAction } from "../../server/tailorAction";
 import { generateCoverLetterAction } from "../../server/coverLetterAction";
+import DOMPurify from 'dompurify';
 import ResumeEditor from "../ResumeEditor";
 import CoverLetterEditor from "../CoverLetterEditor";
 import { GENERATING_VIDEO } from "@/app/constants/constants";
@@ -171,7 +172,7 @@ export default function JobListingDetails({
                       />
                     </div>
                   ) : (
-                    listing.description
+                    <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(listing.description) }} />
                   )}
                 </div>
               </div>
