@@ -4,7 +4,7 @@ import { resumeTailorAgent } from "./agent";
 import { JobListing } from "../types/job";
 import { prisma } from "../lib/prisma";
 
-export async function tailorResumeAction(listing: JobListing, resumeId: string) {
+export async function tailorResumeAction(listing: JobListing, resumeId: string): Promise<{ message: string; newResumeId: string | null }> {
   // Load the resume from DB
   const resume = await prisma.resume.findUnique({
     where: { id: resumeId },
@@ -36,10 +36,11 @@ export async function tailorResumeAction(listing: JobListing, resumeId: string) 
   );
 
   const content = result.messages[result.messages.length - 1].content;
-  const match = content.match(/NEW_RESUME_ID:\s*([A-Za-z0-9-]+)/);
+  const messageStr = (typeof content === "string" ? content : JSON.stringify(content)) as string;
+  const match = messageStr.match(/NEW_RESUME_ID:\s*([A-Za-z0-9-]+)/);
   
   return {
-    message: content,
+    message: messageStr,
     newResumeId: match ? match[1] : null,
   };
 }

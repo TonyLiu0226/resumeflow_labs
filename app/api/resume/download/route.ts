@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
     const { buffer } = await generatePdfBuffer(payload);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

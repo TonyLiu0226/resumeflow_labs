@@ -3,7 +3,7 @@
 import { coverLetterAgent } from "./agent";
 import { JobListing } from "../types/job";
 
-export async function generateCoverLetterAction(listing: JobListing, resumeId: string) {
+export async function generateCoverLetterAction(listing: JobListing, resumeId: string): Promise<{ message: string }> {
   const result = await coverLetterAgent.invoke(
     {
       messages: [
@@ -17,8 +17,9 @@ export async function generateCoverLetterAction(listing: JobListing, resumeId: s
   );
 
   const content = result.messages[result.messages.length - 1].content;
+  const messageStr = (typeof content === "string" ? content : JSON.stringify(content)) as string;
   
   return {
-    message: content,
+    message: messageStr,
   };
 }

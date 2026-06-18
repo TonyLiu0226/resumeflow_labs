@@ -213,7 +213,7 @@ export default function JobListingDetails({
                     : "bg-green-50 text-green-900 border-green-200"
                 } rounded-lg text-sm whitespace-pre-wrap border `}>
                   <h4 className="font-semibold mb-2">Tailoring Result:</h4>
-                  {tailorResult.message || tailorResult}
+                  {tailorResult.message}
                 </div>
               )}
 
